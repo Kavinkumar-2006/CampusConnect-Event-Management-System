@@ -1,0 +1,143 @@
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+/* Background */
+/*body{
+height:100vh;
+background-image: url("/images/Background%20image%202.jpg");
+background-size: cover;
+background-position: center;
+display:flex;
+justify-content:center;
+align-items:center;
+}*/
+
+body{
+height:100vh;
+background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("/images/Background%20image%202.jpg");
+background-size: cover;
+background-position: center;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* Form Container */
+/*form{
+background:white;
+padding:40px;
+border-radius:10px;
+width:400px;
+box-shadow:0px 10px 30px rgba(0,0,0,0.2);
+}*/
+form{
+background:rgba(255,255,255,0.9);
+padding:40px;
+border-radius:12px;
+width:420px;
+box-shadow:0px 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Title */
+/*h1{
+position:absolute;
+top:40px;
+color:white;
+font-size:32px;
+}*/
+h1{
+position:absolute;
+top:40px;
+color:white;
+font-size:40px;
+font-weight:600;
+text-align:center;
+}
+
+/* Labels */
+/*label{
+font-size:14px;
+font-weight:500;
+}*/
+label{
+font-size:16px;
+font-weight:500;
+color:#333;
+}
+
+/* Inputs */
+/*input,select{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:15px;
+border:1px solid #ccc;
+border-radius:5px;
+font-size:14px;
+}*/
+input, select{
+width:100%;
+padding:12px;
+margin-top:6px;
+margin-bottom:16px;
+border:1px solid #ccc;
+border-radius:6px;
+font-size:15px;
+}
+
+/* Button */
+/*button{
+width:100%;
+padding:12px;
+background:#4CAF50;
+border:none;
+color:white;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+transition:0.3s;
+}*/
+
+/* Button Hover */
+/*button:hover{
+background:#388E3C;
+transform:scale(1.02);
+}*/
+button{
+width:100%;
+padding:14px;
+background:#007BFF;
+border:none;
+color:white;
+font-size:16px;
+font-weight:500;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#0056b3;
+transform:scale(1.03);
+}
+
+/* Event Cards */
+.event-card{
+background:white;
+padding:20px;
+margin:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+width:300px;
+}
+
+.event-card button{
+margin-top:10px;
+}
