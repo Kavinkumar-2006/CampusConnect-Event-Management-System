@@ -8,5 +8,29 @@
     "name": "Coding Contest",
     "date": "2026-05-15",
     "venue": "Lab 3"
+  },
+  {
+    "id": "e99f276b-4f95-43dd-8c4c-53926cf6d162",
+    "title": "Kanal",
+    "date": "2026-03-01",
+    "time": "TBD",
+    "venue": "Main Auditorium",
+    "description": "",
+    "category": "technical",
+    "capacity": 100,
+    "registered": 0,
+    "createdAt": "2026-03-10T09:52:00.518Z"
+  },
+  {
+    "id": "2dd3ca36-7156-4462-8753-4e79802a9e13",
+    "title": "SPARK",
+    "date": "2026-03-15",
+    "time": "12:00",
+    "venue": "IT LAB 1",
+    "description": "",
+    "category": "technical",
+    "capacity": 100,
+    "registered": 0,
+    "createdAt": "2026-03-12T08:25:49.801Z"
   }
 ]

@@ -1,65 +1,1073 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Event Registration</title>
-<link rel="stylesheet" href="/css/style.css">
-</head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Event Registration – CampusConnect</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    /* ── FONT OVERRIDE ──────────────────────────────────── */
+    * { font-family: 'Times New Roman', Times, serif !important; }
 
+    /* ── CURSOR GLOW ────────────────────────────────────── */
+    .cursor-glow {
+      width: 420px; height: 420px;
+      position: fixed; pointer-events: none;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,160,23,.07) 0%, transparent 65%);
+      transform: translate(-50%,-50%);
+      z-index: 0; transition: opacity .3s;
+    }
+
+    /* ── PAGE LAYOUT ────────────────────────────────────── */
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .page-wrapper {
+      min-height: calc(100vh - var(--nav-h));
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+    }
+
+    /* particle canvas */
+    #particle-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── LEFT PANEL — Event Info ────────────────────────── */
+    .info-panel {
+      background: linear-gradient(160deg, #0a0800 0%, #111000 60%, #070500 100%);
+      border-right: 1px solid rgba(212,160,23,.25);
+      padding: 4rem 3rem;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      position: relative; overflow: hidden;
+      z-index: 1;
+    }
+    .info-panel::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(212,160,23,.05) 1px, transparent 1px);
+      background-size: 28px 28px; pointer-events: none;
+    }
+    .info-panel::after {
+      content: '';
+      position: absolute; width: 500px; height: 500px;
+      border-radius: 50%;
+      border: 55px solid rgba(212,160,23,.04);
+      top: -130px; right: -130px; pointer-events: none;
+    }
+
+    /* back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: .5rem;
+      color: rgba(212,160,23,.65); font-size: .85rem; font-weight: 600;
+      margin-bottom: 2.5rem; transition: color .2s;
+      position: relative; z-index: 1; width: fit-content;
+    }
+    .back-link:hover { color: var(--gold); }
+    .back-link:hover .arrow { transform: translateX(-3px); }
+    .arrow { transition: transform .2s; display: inline-block; }
+
+    /* event info card */
+    .event-info-card {
+      background: rgba(212,160,23,.05);
+      border: 1px solid rgba(212,160,23,.25);
+      border-radius: 20px; padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative; z-index: 1;
+      transition: box-shadow .3s;
+    }
+    .event-info-card:hover {
+      box-shadow: 0 0 40px rgba(212,160,23,.15);
+    }
+
+    .event-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(212,160,23,.12);
+      border: 1px solid rgba(212,160,23,.3);
+      color: var(--gold); font-size: .7rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .25rem .75rem; border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+
+    .event-title {
+      font-size: 1.7rem; font-weight: 900;
+      color: var(--text); line-height: 1.2;
+      margin-bottom: 1.25rem;
+    }
+    .event-title span { color: var(--gold); }
+
+    .event-details { display: flex; flex-direction: column; gap: .65rem; }
+    .event-detail-row {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .88rem; color: rgba(240,236,224,.6);
+    }
+    .detail-icon {
+      width: 32px; height: 32px;
+      background: rgba(212,160,23,.1);
+      border: 1px solid rgba(212,160,23,.2);
+      border-radius: 8px; display: grid;
+      place-items: center; flex-shrink: 0;
+      font-size: .9rem;
+    }
+    .detail-label { font-size: .7rem; color: rgba(240,236,224,.35); text-transform: uppercase; letter-spacing: .06em; }
+    .detail-value { color: var(--text); font-weight: 500; font-size: .88rem; }
+
+    /* capacity bar */
+    .cap-bar-wrap { margin-top: 1.5rem; }
+    .cap-label {
+      display: flex; justify-content: space-between;
+      font-size: .75rem; color: rgba(240,236,224,.4);
+      margin-bottom: .4rem;
+    }
+    .cap-bar {
+      height: 5px; background: rgba(255,255,255,.06);
+      border-radius: 999px; overflow: hidden;
+    }
+    .cap-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+      border-radius: 999px;
+      box-shadow: 0 0 8px rgba(212,160,23,.5);
+      transition: width .8s ease;
+    }
+
+    /* steps guide */
+    .steps-guide {
+      position: relative; z-index: 1;
+    }
+    .steps-guide h4 {
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .step-guide-item {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .65rem 0;
+      border-bottom: 1px solid rgba(212,160,23,.08);
+    }
+    .step-guide-item:last-child { border-bottom: none; }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(212,160,23,.12);
+      border: 1px solid rgba(212,160,23,.3);
+      display: grid; place-items: center;
+      font-size: .72rem; font-weight: 800;
+      color: var(--gold); flex-shrink: 0;
+      transition: all .3s;
+    }
+    .step-guide-item.done .step-num {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      color: #0a0800; border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212,160,23,.4);
+    }
+    .step-guide-item.active .step-num {
+      background: rgba(212,160,23,.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(212,160,23,.3);
+    }
+    .step-guide-text { font-size: .84rem; color: rgba(240,236,224,.5); }
+    .step-guide-item.active .step-guide-text { color: var(--text); font-weight: 600; }
+    .step-guide-item.done  .step-guide-text  { color: rgba(212,160,23,.7); }
+
+    /* ── RIGHT PANEL — Form ─────────────────────────────── */
+    .form-panel {
+      background: var(--bg);
+      padding: 4rem 3rem;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      position: relative; z-index: 1;
+      overflow-y: auto;
+    }
+
+    /* Step header */
+    .step-header { margin-bottom: 2.25rem; }
+    .step-header .step-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(212,160,23,.08);
+      border: 1px solid rgba(212,160,23,.2);
+      color: var(--gold); font-size: .7rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: .25rem .8rem; border-radius: 999px; margin-bottom: .75rem;
+    }
+    .step-header h2 { font-size: 1.65rem; color: var(--text); margin-bottom: .35rem; }
+    .step-header p  { font-size: .88rem; color: rgba(240,236,224,.5); }
+
+    /* Progress bar at top of form */
+    .form-progress {
+      height: 3px; background: rgba(255,255,255,.06);
+      border-radius: 999px; margin-bottom: 2.5rem;
+      overflow: hidden;
+    }
+    .form-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold-lt));
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(212,160,23,.5);
+      transition: width .5s ease;
+    }
+
+    /* Step panels */
+    .step-panel { display: none; animation: stepIn .35s ease both; }
+    .step-panel.active { display: block; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Form controls */
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.35rem; }
+
+    .form-label {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .82rem; font-weight: 700;
+      color: rgba(240,236,224,.75); margin-bottom: .45rem;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .form-label .req { color: var(--gold); font-size: .9rem; }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem; pointer-events: none;
+      opacity: .45; transition: opacity .2s;
+    }
+    .input-wrap:focus-within .input-icon { opacity: 1; }
+
+    .form-control {
+      width: 100%;
+      padding: .85rem 1rem .85rem 2.8rem;
+      background: rgba(255,255,255,.04);
+      border: 1.5px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      color: var(--text); font-size: .92rem;
+      transition: border-color .25s, box-shadow .25s, background .25s;
+      font-family: 'Times New Roman', Times, serif !important;
+    }
+    .form-control.no-icon { padding-left: 1rem; }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,160,23,.12);
+      background: rgba(212,160,23,.04);
+    }
+    .form-control::placeholder { color: rgba(240,236,224,.2); }
+    .form-control.error {
+      border-color: rgba(239,68,68,.6);
+      box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+    }
+    /* select dark arrow */
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a017' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+    select.form-control option { background: #111; color: #f0ece0; }
+
+    .form-error {
+      font-size: .75rem; color: #ef4444;
+      margin-top: .3rem; display: none;
+      animation: fadeUp .2s ease;
+    }
+    .form-error.show { display: block; }
+    .form-hint { font-size: .74rem; color: rgba(240,236,224,.3); margin-top: .3rem; }
+
+    /* Floating label effect */
+    .form-control:not(:placeholder-shown) + .float-label,
+    .form-control:focus + .float-label {
+      top: -.55rem; font-size: .68rem; color: var(--gold);
+    }
+
+    /* Payment cards */
+    .payment-options { display: grid; grid-template-columns: repeat(3,1fr); gap: .75rem; }
+    .payment-card {
+      background: rgba(255,255,255,.03);
+      border: 1.5px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: .9rem .75rem;
+      text-align: center; cursor: pointer;
+      transition: all .25s;
+    }
+    .payment-card:hover { border-color: rgba(212,160,23,.35); background: rgba(212,160,23,.05); }
+    .payment-card.selected {
+      border-color: var(--gold);
+      background: rgba(212,160,23,.10);
+      box-shadow: 0 0 16px rgba(212,160,23,.2);
+    }
+    .payment-card .pay-icon { font-size: 1.4rem; margin-bottom: .35rem; }
+    .payment-card .pay-name { font-size: .75rem; font-weight: 700; color: rgba(240,236,224,.7); }
+    .payment-card.selected .pay-name { color: var(--gold); }
+
+    /* Terms */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: rgba(212,160,23,.04);
+      border: 1px solid rgba(212,160,23,.15);
+      border-radius: 10px; padding: 1rem;
+      margin-bottom: 1.5rem; cursor: pointer;
+      transition: border-color .25s;
+    }
+    .terms-row:hover { border-color: rgba(212,160,23,.3); }
+    .terms-row input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--gold);
+      flex-shrink: 0; margin-top: 1px; cursor: pointer;
+    }
+    .terms-text { font-size: .82rem; color: rgba(240,236,224,.55); line-height: 1.55; }
+    .terms-text a { color: var(--gold); font-weight: 600; }
+
+    /* Nav buttons */
+    .form-nav {
+      display: flex; gap: .85rem; margin-top: .5rem;
+    }
+    .btn-next, .btn-submit-final {
+      flex: 1; padding: .95rem;
+      background: linear-gradient(135deg, var(--gold) 0%, #a07810 100%);
+      color: #0a0800; border: none;
+      border-radius: 10px; font-size: .95rem;
+      font-weight: 800; cursor: pointer;
+      letter-spacing: .04em;
+      transition: all .25s; position: relative; overflow: hidden;
+      font-family: 'Times New Roman', Times, serif !important;
+      box-shadow: 0 0 0 rgba(212,160,23,0);
+    }
+    .btn-next::before, .btn-submit-final::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      transition: left .45s ease;
+    }
+    .btn-next:hover::before, .btn-submit-final:hover::before { left: 140%; }
+    .btn-next:hover, .btn-submit-final:hover {
+      background: linear-gradient(135deg, var(--gold-lt), var(--gold));
+      box-shadow: 0 0 28px rgba(212,160,23,.45), 0 6px 20px rgba(0,0,0,.4);
+      transform: translateY(-2px);
+    }
+    .btn-next:active, .btn-submit-final:active { transform: scale(.97); }
+    .btn-next:disabled, .btn-submit-final:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    .btn-prev {
+      padding: .95rem 1.5rem;
+      background: rgba(255,255,255,.04);
+      color: rgba(240,236,224,.6);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 10px; font-size: .9rem;
+      font-weight: 600; cursor: pointer;
+      transition: all .25s;
+      font-family: 'Times New Roman', Times, serif !important;
+    }
+    .btn-prev:hover {
+      border-color: rgba(212,160,23,.4);
+      color: var(--gold);
+      background: rgba(212,160,23,.06);
+    }
+
+    /* ── SUCCESS SCREEN ─────────────────────────────────── */
+    .success-screen {
+      display: none; text-align: center;
+      padding: 3rem 1rem; animation: fadeUp .5s ease;
+    }
+    .success-screen.show { display: block; }
+
+    .success-ring {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      display: grid; place-items: center;
+      font-size: 2.5rem; margin: 0 auto 1.5rem;
+      box-shadow: 0 0 0 15px rgba(212,160,23,.08),
+                  0 0 0 30px rgba(212,160,23,.04);
+      animation: successPop .5s ease;
+    }
+    @keyframes successPop {
+      0%   { transform: scale(0); opacity: 0; }
+      70%  { transform: scale(1.12); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-screen h2 { color: var(--gold); font-size: 1.6rem; margin-bottom: .5rem; }
+    .success-screen p  { color: rgba(240,236,224,.55); line-height: 1.7; }
+
+    .success-details {
+      background: rgba(212,160,23,.06);
+      border: 1px solid rgba(212,160,23,.2);
+      border-radius: 14px; padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0; text-align: left;
+    }
+    .success-detail-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: .5rem 0;
+      border-bottom: 1px solid rgba(212,160,23,.08);
+      font-size: .85rem;
+    }
+    .success-detail-row:last-child { border-bottom: none; }
+    .sdl { color: rgba(240,236,224,.4); }
+    .sdv { color: var(--text); font-weight: 600; }
+
+    .qr-placeholder {
+      width: 100px; height: 100px;
+      background: rgba(212,160,23,.1);
+      border: 2px dashed rgba(212,160,23,.3);
+      border-radius: 12px; margin: 1.25rem auto;
+      display: grid; place-items: center;
+      font-size: 2.5rem;
+      box-shadow: 0 0 20px rgba(212,160,23,.1);
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .page-wrapper { grid-template-columns: 1fr; }
+      .info-panel   { display: none; }
+      .form-panel   { padding: 2rem 1.25rem; }
+      .form-row-2   { grid-template-columns: 1fr; }
+      .payment-options { grid-template-columns: repeat(2,1fr); }
+    }
+
+    /* Gold line decorator */
+    .gold-line {
+      display: block; width: 48px; height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      border-radius: 2px; margin-bottom: .75rem;
+    }
+  </style>
+</head>
 <body>
 
-<h1>Event Registration Form</h1>
+<!-- cursor glow -->
+<div class="cursor-glow" id="cursor-glow"></div>
+<canvas id="particle-canvas"></canvas>
 
-<form id="registrationForm">
+<!-- ════════════════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="nav-logo-icon">🎓</div>
+      Campus<span>Connect</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/admin">Admin</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="/views/login.html"    class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="/views/register.html" class="btn btn-primary btn-sm">Join Now ✦</a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
 
-<label>Full Name</label><br>
-<input type="text" id="username" required><br><br>
+<!-- ════════════════════════════════════════════════════════
+     PAGE WRAPPER
+═══════════════════════════════════════════════════════ -->
+<div class="page-wrapper">
 
-<label>Email ID</label><br>
-<input type="email" id="email" required><br><br>
+  <!-- ════ LEFT — Event Info Panel ════════════════════════ -->
+  <div class="info-panel">
 
-<label>Phone Number</label><br>
-<input type="tel" id="phone" required><br><br>
+    <a href="/events" class="back-link">
+      <span class="arrow">←</span> Back to Events
+    </a>
 
-<label>Register Number</label><br>
-<input type="text" id="regno" required><br><br>
+    <!-- Event Details Card -->
+    <div class="event-info-card" id="event-info-card">
+      <div class="event-tag">📅 Upcoming Event</div>
+      <h2 class="event-title" id="ei-title">Loading Event…</h2>
 
-<label>Year</label><br>
-<select id="year">
-<option>1st Year</option>
-<option>2nd Year</option>
-<option>3rd Year</option>
-<option>4th Year</option>
-</select><br><br>
+      <div class="event-details">
+        <div class="event-detail-row">
+          <div class="detail-icon">📅</div>
+          <div>
+            <div class="detail-label">Date</div>
+            <div class="detail-value" id="ei-date">—</div>
+          </div>
+        </div>
+        <div class="event-detail-row">
+          <div class="detail-icon">🕐</div>
+          <div>
+            <div class="detail-label">Time</div>
+            <div class="detail-value" id="ei-time">—</div>
+          </div>
+        </div>
+        <div class="event-detail-row">
+          <div class="detail-icon">📍</div>
+          <div>
+            <div class="detail-label">Venue</div>
+            <div class="detail-value" id="ei-venue">—</div>
+          </div>
+        </div>
+        <div class="event-detail-row">
+          <div class="detail-icon">🏷️</div>
+          <div>
+            <div class="detail-label">Category</div>
+            <div class="detail-value" id="ei-category">—</div>
+          </div>
+        </div>
+        <div class="event-detail-row">
+          <div class="detail-icon">👥</div>
+          <div>
+            <div class="detail-label">Seats</div>
+            <div class="detail-value" id="ei-seats">—</div>
+          </div>
+        </div>
+      </div>
 
-<label>Department</label><br>
-<select id="department">
-<option>Information Technology</option>
-<option>Computer Science</option>
-<option>Electronics</option>
-<option>Mechanical</option>
-</select><br><br>
+      <div class="cap-bar-wrap">
+        <div class="cap-label">
+          <span>Registration Progress</span>
+          <span id="ei-pct">0%</span>
+        </div>
+        <div class="cap-bar">
+          <div class="cap-fill" id="ei-cap-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
 
-<label>Class</label><br>
-<input type="text" id="class"><br><br>
+    <!-- Steps Guide -->
+    <div class="steps-guide">
+      <h4>✦ Registration Steps</h4>
+      <div class="step-guide-item active" id="sg-1">
+        <div class="step-num">1</div>
+        <div class="step-guide-text">Personal Information</div>
+      </div>
+      <div class="step-guide-item" id="sg-2">
+        <div class="step-num">2</div>
+        <div class="step-guide-text">Academic Details</div>
+      </div>
+      <div class="step-guide-item" id="sg-3">
+        <div class="step-num">3</div>
+        <div class="step-guide-text">Confirm & Submit</div>
+      </div>
+    </div>
 
-<label>Section</label><br>
-<input type="text" id="section"><br><br>
+  </div><!-- /info-panel -->
 
-<label>Payment Method</label><br>
-<select id="payment">
-<option>Free Event</option>
-<option>UPI</option>
-<option>Cash</option>
-<option>Card</option>
-</select><br><br>
+  <!-- ════ RIGHT — Form Panel ══════════════════════════════ -->
+  <div class="form-panel">
 
-<button type="submit">Submit Registration</button>
+    <!-- Hidden event ID -->
+    <input type="hidden" id="event-id-hidden"/>
 
-</form>
+    <!-- Progress bar -->
+    <div class="form-progress">
+      <div class="form-progress-fill" id="progress-fill" style="width:33%"></div>
+    </div>
 
+    <form id="reg-form" novalidate>
+
+      <!-- ══ STEP 1 — Personal Info ══════════════════════ -->
+      <div class="step-panel active" id="step-1">
+        <div class="step-header">
+          <div class="step-badge">✦ Step 1 of 3</div>
+          <h2>Personal Information</h2>
+          <p>Tell us about yourself so we can prepare your ticket.</p>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="first-name">First Name <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="first-name" class="form-control"
+                placeholder="John" required autocomplete="given-name"/>
+            </div>
+            <div class="form-error" id="err-first-name">First name is required.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last-name">Last Name <span class="req">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="last-name" class="form-control"
+                placeholder="Doe" required autocomplete="family-name"/>
+            </div>
+            <div class="form-error" id="err-last-name">Last name is required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">📧</span>
+            <input type="email" id="email" class="form-control"
+              placeholder="yourname@college.edu" required autocomplete="email"/>
+          </div>
+          <div class="form-error" id="err-email">Enter a valid email address.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">📱</span>
+            <input type="tel" id="phone" class="form-control"
+              placeholder="+91 98765 43210" required maxlength="15"/>
+          </div>
+          <div class="form-error" id="err-phone">Enter a valid 10-digit phone number.</div>
+          <div class="form-hint">Include country code, e.g. +91 for India</div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="dob">Date of Birth</label>
+            <div class="input-wrap">
+              <span class="input-icon">🎂</span>
+              <input type="date" id="dob" class="form-control"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gender">Gender</label>
+            <select id="gender" class="form-control no-icon">
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn-next" id="next-1">
+            Continue to Academic Details →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 2 — Academic Details ═══════════════════ -->
+      <div class="step-panel" id="step-2">
+        <div class="step-header">
+          <div class="step-badge">✦ Step 2 of 3</div>
+          <h2>Academic Details</h2>
+          <p>Your college information for event verification.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="roll-number">Register Number <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🪪</span>
+            <input type="text" id="roll-number" class="form-control"
+              placeholder="e.g. 22IT001" required autocomplete="off"/>
+          </div>
+          <div class="form-error" id="err-roll">Register number is required.</div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="department">Department <span class="req">*</span></label>
+            <select id="department" class="form-control no-icon" required>
+              <option value="">Select dept.</option>
+              <option value="IT">Information Technology</option>
+              <option value="CSE">Computer Science</option>
+              <option value="ECE">Electronics & Comm.</option>
+              <option value="EEE">Electrical Engg.</option>
+              <option value="MECH">Mechanical Engg.</option>
+              <option value="CIVIL">Civil Engg.</option>
+              <option value="AIDS">AI & Data Science</option>
+              <option value="MBA">MBA</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <div class="form-error" id="err-dept">Select your department.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="year">Year <span class="req">*</span></label>
+            <select id="year" class="form-control no-icon" required>
+              <option value="">Select year</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+              <option value="PG1">PG – Year 1</option>
+              <option value="PG2">PG – Year 2</option>
+            </select>
+            <div class="form-error" id="err-year">Select your year.</div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="class-field">Class</label>
+            <div class="input-wrap">
+              <span class="input-icon">🏫</span>
+              <input type="text" id="class-field" class="form-control"
+                placeholder="e.g. IT-A" autocomplete="off"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="section">Section</label>
+            <div class="input-wrap">
+              <span class="input-icon">📋</span>
+              <input type="text" id="section" class="form-control"
+                placeholder="e.g. A" maxlength="5"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="college-id">College ID Number</label>
+          <div class="input-wrap">
+            <span class="input-icon">🆔</span>
+            <input type="text" id="college-id" class="form-control"
+              placeholder="Optional — for identity verification"/>
+          </div>
+          <div class="form-hint">Shown at the event gate for verification</div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn-prev" id="prev-2">← Back</button>
+          <button type="button" class="btn-next" id="next-2">
+            Continue to Confirm →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 3 — Confirm & Submit ════════════════════ -->
+      <div class="step-panel" id="step-3">
+        <div class="step-header">
+          <div class="step-badge">✦ Step 3 of 3</div>
+          <h2>Confirm &amp; Submit</h2>
+          <p>Review your details before submitting.</p>
+        </div>
+
+        <!-- Summary card -->
+        <div style="background:rgba(212,160,23,.05);border:1px solid rgba(212,160,23,.2);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem">
+          <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem">
+            ✦ Your Registration Summary
+          </div>
+          <div id="summary-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="form-group">
+          <label class="form-label">Payment Method <span class="req">*</span></label>
+          <div class="payment-options">
+            <div class="payment-card selected" data-value="free" onclick="selectPayment(this)">
+              <div class="pay-icon">🎟️</div>
+              <div class="pay-name">Free Event</div>
+            </div>
+            <div class="payment-card" data-value="upi" onclick="selectPayment(this)">
+              <div class="pay-icon">📲</div>
+              <div class="pay-name">UPI / GPay</div>
+            </div>
+            <div class="payment-card" data-value="cash" onclick="selectPayment(this)">
+              <div class="pay-icon">💵</div>
+              <div class="pay-name">Cash at Desk</div>
+            </div>
+          </div>
+          <input type="hidden" id="payment-method" value="free"/>
+        </div>
+
+        <!-- Additional notes -->
+        <div class="form-group">
+          <label class="form-label" for="notes">Additional Notes</label>
+          <textarea id="notes" class="form-control no-icon"
+            style="padding:.85rem 1rem;resize:vertical;min-height:80px"
+            placeholder="Any dietary restrictions, accessibility needs, or questions…"></textarea>
+        </div>
+
+        <!-- Terms -->
+        <label class="terms-row">
+          <input type="checkbox" id="terms" required/>
+          <div class="terms-text">
+            I confirm that all information provided is accurate and I agree to the
+            <a href="#">Terms &amp; Conditions</a> of CampusConnect. I understand
+            that my QR ticket will be sent after confirmation.
+          </div>
+        </label>
+        <div class="form-error" id="err-terms">You must accept the terms to register.</div>
+
+        <div class="form-nav">
+          <button type="button" class="btn-prev" id="prev-3">← Back</button>
+          <button type="submit" class="btn-submit-final" id="submit-btn">
+            <span id="submit-text">✦ Submit Registration</span>
+          </button>
+        </div>
+      </div>
+
+    </form><!-- /reg-form -->
+
+    <!-- ── SUCCESS SCREEN ──────────────────────────────── -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-ring">🎉</div>
+      <h2>Registration Complete!</h2>
+      <p>You're officially registered. Your QR ticket is ready.</p>
+
+      <div class="qr-placeholder">📲</div>
+      <p style="font-size:.78rem;color:rgba(240,236,224,.3);margin-bottom:1.5rem">
+        QR Ticket — Screenshot &amp; present at the gate
+      </p>
+
+      <div class="success-details" id="success-details">
+        <!-- Populated by JS -->
+      </div>
+
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+        <a href="/events" class="btn btn-outline btn-sm">← Back to Events</a>
+        <button onclick="window.print()" class="btn btn-primary btn-sm">🖨 Print Ticket</button>
+      </div>
+    </div>
+
+  </div><!-- /form-panel -->
+</div><!-- /page-wrapper -->
+
+<div class="toast-container"></div>
 <script src="/js/script.js"></script>
+<script>
+"use strict";
 
+/* ── Cursor glow ─────────────────────────────────────────── */
+const glow = document.getElementById("cursor-glow");
+document.addEventListener("mousemove", e => {
+  glow.style.left = e.clientX + "px";
+  glow.style.top  = e.clientY + "px";
+});
+
+/* ── Particle canvas ─────────────────────────────────────── */
+(function () {
+  const canvas = document.getElementById("particle-canvas");
+  const ctx    = canvas.getContext("2d");
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  window.addEventListener("resize", resize); resize();
+  const pts = Array.from({ length: 60 }, () => ({
+    x: Math.random() * innerWidth,  y: Math.random() * innerHeight,
+    vx: (Math.random()-.5)*.2,      vy: (Math.random()-.5)*.2,
+    r: Math.random()*1.4+.3,        a: Math.random()*.3+.05
+  }));
+  function loop() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>canvas.width)  p.vx*=-1;
+      if(p.y<0||p.y>canvas.height) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(212,160,23,${p.a})`; ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y,
+            d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(212,160,23,${.05*(1-d/100)})`; ctx.lineWidth=.5; ctx.stroke();
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ── Navbar scroll shadow ────────────────────────────────── */
+window.addEventListener("scroll", () =>
+  document.querySelector(".navbar").classList.toggle("scrolled", scrollY > 20)
+);
+
+/* ── Step state ──────────────────────────────────────────── */
+let currentStep = 1;
+const totalSteps = 3;
+const progressPct = { 1: "33%", 2: "66%", 3: "100%" };
+
+function goToStep(n) {
+  // Hide current, show new
+  document.getElementById(`step-${currentStep}`).classList.remove("active");
+  document.getElementById(`step-${n}`).classList.add("active");
+
+  // Update sidebar guide
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`sg-${i}`);
+    el.classList.remove("active","done");
+    if (i < n)  el.classList.add("done");
+    if (i === n) el.classList.add("active");
+    el.querySelector(".step-num").textContent = i < n ? "✓" : i;
+  });
+
+  // Progress bar
+  document.getElementById("progress-fill").style.width = progressPct[n];
+  currentStep = n;
+
+  // Populate summary on step 3
+  if (n === 3) buildSummary();
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ── Validation helpers ──────────────────────────────────── */
+function v(id) { return (document.getElementById(id)?.value || "").trim(); }
+function showErr(id, errId, msg) {
+  document.getElementById(id)?.classList.add("error");
+  const el = document.getElementById(errId);
+  if (el) { el.textContent = msg; el.classList.add("show"); }
+}
+function clearErr(id, errId) {
+  document.getElementById(id)?.classList.remove("error");
+  document.getElementById(errId)?.classList.remove("show");
+}
+
+function validateStep1() {
+  let ok = true;
+  if (!v("first-name")) { showErr("first-name","err-first-name","First name is required."); ok=false; } else clearErr("first-name","err-first-name");
+  if (!v("last-name"))  { showErr("last-name","err-last-name","Last name is required."); ok=false; } else clearErr("last-name","err-last-name");
+  const em = v("email");
+  if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showErr("email","err-email","Enter a valid email."); ok=false; } else clearErr("email","err-email");
+  const ph = v("phone").replace(/\D/g,"");
+  if (ph.length < 10) { showErr("phone","err-phone","Enter a valid 10-digit phone number."); ok=false; } else clearErr("phone","err-phone");
+  return ok;
+}
+function validateStep2() {
+  let ok = true;
+  if (!v("roll-number")) { showErr("roll-number","err-roll","Register number is required."); ok=false; } else clearErr("roll-number","err-roll");
+  if (!v("department"))  { showErr("department","err-dept","Select your department."); ok=false; } else clearErr("department","err-dept");
+  if (!v("year"))        { showErr("year","err-year","Select your year."); ok=false; } else clearErr("year","err-year");
+  return ok;
+}
+
+/* ── Summary builder ─────────────────────────────────────── */
+function buildSummary() {
+  const fields = [
+    ["Name",        `${v("first-name")} ${v("last-name")}`],
+    ["Email",       v("email")],
+    ["Phone",       v("phone")],
+    ["Reg. Number", v("roll-number")],
+    ["Department",  v("department")],
+    ["Year",        v("year")],
+    ["Class",       v("class-field") || "—"],
+    ["Section",     v("section")     || "—"],
+  ];
+  document.getElementById("summary-grid").innerHTML = fields.map(([l, val]) => `
+    <div style="font-size:.72rem;color:rgba(240,236,224,.38);text-transform:uppercase;letter-spacing:.05em">${l}</div>
+    <div style="font-size:.84rem;color:var(--text);font-weight:600;word-break:break-all">${val || "—"}</div>
+  `).join("");
+}
+
+/* ── Payment method selection ────────────────────────────── */
+function selectPayment(el) {
+  document.querySelectorAll(".payment-card").forEach(c => c.classList.remove("selected"));
+  el.classList.add("selected");
+  document.getElementById("payment-method").value = el.dataset.value;
+}
+window.selectPayment = selectPayment;
+
+/* ── Button listeners ────────────────────────────────────── */
+document.getElementById("next-1").addEventListener("click", () => {
+  if (validateStep1()) goToStep(2);
+});
+document.getElementById("next-2").addEventListener("click", () => {
+  if (validateStep2()) goToStep(3);
+});
+document.getElementById("prev-2").addEventListener("click", () => goToStep(1));
+document.getElementById("prev-3").addEventListener("click", () => goToStep(2));
+
+/* ── Form submit ─────────────────────────────────────────── */
+document.getElementById("reg-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // Terms check
+  const terms = document.getElementById("terms");
+  if (!terms.checked) {
+    document.getElementById("err-terms").classList.add("show");
+    return;
+  }
+  document.getElementById("err-terms").classList.remove("show");
+
+  const btn  = document.getElementById("submit-btn");
+  const text = document.getElementById("submit-text");
+  btn.disabled = true; text.textContent = "Submitting…";
+
+  const payload = {
+    eventId:    document.getElementById("event-id-hidden").value,
+    name:       `${v("first-name")} ${v("last-name")}`,
+    email:      v("email"),
+    phone:      v("phone"),
+    rollNumber: v("roll-number"),
+    department: v("department"),
+    year:       v("year"),
+    classField: v("class-field"),
+    section:    v("section"),
+    collegeId:  v("college-id"),
+    payment:    document.getElementById("payment-method").value,
+    notes:      v("notes"),
+  };
+
+  try {
+    const res  = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Registration failed");
+
+    // Show success
+    document.getElementById("reg-form").style.display         = "none";
+    document.getElementById("progress-fill").parentElement.style.display = "none";
+    document.getElementById("success-screen").classList.add("show");
+
+    // Populate success details
+    document.getElementById("success-details").innerHTML = `
+      <div class="success-detail-row"><span class="sdl">Event</span><span class="sdv">${data.data?.event || "—"}</span></div>
+      <div class="success-detail-row"><span class="sdl">Name</span><span class="sdv">${payload.name}</span></div>
+      <div class="success-detail-row"><span class="sdl">Email</span><span class="sdv">${payload.email}</span></div>
+      <div class="success-detail-row"><span class="sdl">Register No.</span><span class="sdv">${payload.rollNumber}</span></div>
+      <div class="success-detail-row"><span class="sdl">Department</span><span class="sdv">${payload.department}</span></div>
+      <div class="success-detail-row"><span class="sdl">Reg. ID</span><span class="sdv" style="color:var(--gold)">${data.data?.registrationId?.slice(0,8).toUpperCase() || "—"}</span></div>
+    `;
+
+  } catch (err) {
+    btn.disabled = false; text.textContent = "✦ Submit Registration";
+    const container = document.querySelector(".toast-container");
+    const toast = document.createElement("div");
+    toast.className = "toast error";
+    toast.innerHTML = `
+      <div class="toast-icon">❌</div>
+      <div><div class="toast-title">Registration Failed</div>
+      <div class="toast-msg">${err.message}</div></div>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add("fade-out");
+      toast.addEventListener("animationend", () => toast.remove());
+    }, 4500);
+  }
+});
+
+/* ── Load event details from URL param ──────────────────── */
+(async function loadEventInfo() {
+  const params  = new URLSearchParams(location.search);
+  const eventId = params.get("id");
+  if (!eventId || eventId === "undefined") return;
+
+  document.getElementById("event-id-hidden").value = eventId;
+
+  try {
+    const res = await fetch(`/api/events/${eventId}`);
+    const { data: e } = await res.json();
+    if (!e) return;
+
+    document.getElementById("ei-title").textContent    = e.title;
+    document.getElementById("ei-date").textContent     = new Date(e.date).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
+    document.getElementById("ei-time").textContent     = e.time || "TBD";
+    document.getElementById("ei-venue").textContent    = e.venue;
+    document.getElementById("ei-category").textContent = e.category || "General";
+    document.getElementById("ei-seats").textContent    = `${e.registered || 0} / ${e.capacity}`;
+
+    const pct = Math.min(100, Math.round(((e.registered||0)/e.capacity)*100));
+    document.getElementById("ei-pct").textContent      = `${pct}%`;
+    document.getElementById("ei-cap-fill").style.width = `${pct}%`;
+
+    document.title = `Register – ${e.title} | CampusConnect`;
+  } catch {}
+})();
+</script>
 </body>
-
 </html>

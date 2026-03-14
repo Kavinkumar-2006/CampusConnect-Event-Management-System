@@ -1,26 +1,1176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>CampusConnect</title>
-<link rel="stylesheet" href="/css/style.css">
-</head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CampusConnect – College Event Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   SERVICENOW-SCALE — CampusConnect Dark Gold
+   All sizes reference the ServiceNow homepage proportions:
+   • Navbar: 80px tall, 1.1rem nav links
+   • Hero H1: 72-80px
+   • Buttons: 52-56px tall, 1rem+ font
+   • Body text: 1.1-1.2rem
+   • Section headings: 2.8-3.5rem
+═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
 
+:root{
+  /* Gold */
+  --g:     #d4a017;
+  --g-lt:  #f5c842;
+  --g-dim: #a07810;
+  --glow:  rgba(212,160,23,.40);
+
+  /* Darks */
+  --bg:  #080808;
+  --bg2: #0d0d0d;
+  --bg3: #121212;
+  --bg4: #0a0900;
+
+  /* Text */
+  --tx:  #f0ece0;
+  --txm: rgba(240,236,224,.55);
+  --txd: rgba(240,236,224,.28);
+
+  /* Borders */
+  --bd:  rgba(255,255,255,.08);
+  --bdg: rgba(212,160,23,.26);
+
+  /* Sizes — ServiceNow scale */
+  --nav-h: 80px;        /* ServiceNow navbar height */
+  --font:  'Inter', system-ui, sans-serif;
+}
+
+html{ scroll-behavior:smooth; font-size:16px; }
+body{
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--tx);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+a{ color:inherit; text-decoration:none; }
+
+::-webkit-scrollbar{ width:5px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--g-dim); border-radius:3px; }
+
+/* cursor glow */
+#cg{
+  width:600px; height:600px;
+  position:fixed; pointer-events:none; border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,.065) 0%,transparent 65%);
+  transform:translate(-50%,-50%); z-index:1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVBAR — 80px, ServiceNow scale
+═══════════════════════════════════════════════════════════════ */
+.nav{
+  position:sticky; top:0; z-index:200;
+  height:var(--nav-h);
+  background:rgba(8,8,8,.90);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--bdg);
+  display:flex; align-items:center;
+  transition:box-shadow .25s;
+}
+.nav.scrolled{ box-shadow:0 4px 40px rgba(212,160,23,.13); }
+
+.nav-wrap{
+  width:100%; max-width:1440px;
+  margin:0 auto; padding:0 3.5rem;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+/* Logo — large like ServiceNow */
+.logo{
+  display:flex; align-items:center; gap:.75rem;
+  font-size:1.5rem; font-weight:900; color:var(--tx);
+  letter-spacing:-.01em;
+}
+.logo span{ color:var(--g); }
+.logo-icon{
+  width:44px; height:44px;
+  background:linear-gradient(135deg,var(--g),var(--g-dim));
+  border-radius:10px; display:grid; place-items:center;
+  font-size:1.3rem;
+  box-shadow:0 0 18px var(--glow);
+  animation:pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 10px var(--glow);}
+  50%    {box-shadow:0 0 28px var(--glow),0 0 55px rgba(212,160,23,.15);}
+}
+
+/* Nav links — 1.05rem like ServiceNow */
+.nav-links{
+  list-style:none;
+  display:flex; align-items:center; gap:.15rem;
+}
+.nav-links a{
+  padding:.55rem 1.15rem;
+  border-radius:8px;
+  font-size:1.05rem; font-weight:500; color:var(--txm);
+  transition:color .2s, background .2s;
+  position:relative;
+}
+.nav-links a::after{
+  content:''; position:absolute; bottom:2px; left:50%;
+  transform:translateX(-50%) scaleX(0);
+  width:50%; height:2px; background:var(--g);
+  transition:transform .25s ease; border-radius:1px;
+}
+.nav-links a:hover{ color:var(--tx); }
+.nav-links a:hover::after,
+.nav-links a.active::after{ transform:translateX(-50%) scaleX(1); }
+.nav-links a.active{ color:var(--g); font-weight:700; }
+
+/* Nav CTA — proper ServiceNow button sizes */
+.nav-cta{ display:flex; align-items:center; gap:.65rem; }
+
+.btn-nav-ghost{
+  padding:.6rem 1.4rem;
+  background:transparent;
+  border:1.5px solid rgba(212,160,23,.35);
+  border-radius:8px; color:var(--g);
+  font-size:1rem; font-weight:600;
+  cursor:pointer; transition:all .22s; display:inline-block;
+}
+.btn-nav-ghost:hover{
+  background:rgba(212,160,23,.08);
+  border-color:var(--g);
+  box-shadow:0 0 16px var(--glow);
+}
+
+.btn-nav-fill{
+  padding:.65rem 1.6rem;
+  background:linear-gradient(135deg,var(--g),var(--g-dim));
+  color:#0a0800; font-size:1rem; font-weight:800;
+  border:none; border-radius:8px; cursor:pointer;
+  transition:all .25s; display:inline-block;
+  position:relative; overflow:hidden; letter-spacing:.02em;
+}
+.btn-nav-fill::before{
+  content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transition:left .4s;
+}
+.btn-nav-fill:hover::before{ left:140%; }
+.btn-nav-fill:hover{
+  box-shadow:0 0 24px var(--glow);
+  transform:translateY(-1px);
+}
+
+/* hamburger */
+.burger{
+  display:none; flex-direction:column; gap:6px;
+  cursor:pointer; padding:.5rem; background:none; border:none;
+}
+.burger span{
+  display:block; width:26px; height:2.5px;
+  background:var(--g); border-radius:2px; transition:transform .25s,opacity .25s;
+}
+.burger.open span:nth-child(1){ transform:translateY(8.5px) rotate(45deg); }
+.burger.open span:nth-child(2){ opacity:0; }
+.burger.open span:nth-child(3){ transform:translateY(-8.5px) rotate(-45deg); }
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO — full viewport, two-column, ServiceNow proportions
+═══════════════════════════════════════════════════════════════ */
+.hero{
+  height:calc(100vh - var(--nav-h));
+  min-height:680px;
+  display:grid;
+  grid-template-columns:58% 42%;
+  overflow:hidden;
+  background:var(--bg);
+  position:relative;
+}
+
+/* particle canvas */
+#pcanvas{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events:none; z-index:0;
+}
+
+/* dot-grid left */
+.hero-dots{
+  position:absolute; inset:0 42% 0 0;
+  background-image:radial-gradient(circle,rgba(212,160,23,.07) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none; z-index:1;
+}
+
+/* LEFT */
+.hero-left{
+  display:flex; flex-direction:column; justify-content:center;
+  padding:0 5rem 0 min(7rem,9vw);
+  position:relative; z-index:2; min-width:0;
+}
+
+/* badge */
+.hero-badge{
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:rgba(212,160,23,.10);
+  border:1px solid rgba(212,160,23,.38);
+  color:var(--g-lt);
+  padding:.45rem 1.15rem; border-radius:999px;
+  font-size:.9rem; font-weight:700; letter-spacing:.07em;
+  margin-bottom:2rem; width:fit-content;
+  animation:fadeUp .5s ease both;
+}
+.bdot{
+  width:8px; height:8px; border-radius:50%;
+  background:var(--g); box-shadow:0 0 8px var(--g);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+/* H1 — ServiceNow scale: ~72-80px */
+.hero-h1{
+  font-size:clamp(3.2rem, 5.5vw, 5.2rem);
+  line-height:1.04; font-weight:900;
+  color:var(--tx); letter-spacing:-.02em;
+  margin-bottom:1.5rem;
+  animation:fadeUp .5s .07s ease both;
+}
+.hero-h1 .cg { color:var(--g); }
+.hero-h1 .co {
+  -webkit-text-stroke:2px var(--g);
+  color:transparent;
+}
+
+/* subtitle — 1.2rem like ServiceNow body */
+.hero-sub{
+  font-size:1.2rem; color:var(--txm);
+  line-height:1.75; max-width:480px;
+  margin-bottom:2.5rem;
+  animation:fadeUp .5s .14s ease both;
+}
+
+/* CTA row — ServiceNow button heights ~52px */
+.hero-btns{
+  display:flex; gap:1.1rem; flex-wrap:wrap;
+  margin-bottom:3.5rem;
+  animation:fadeUp .5s .21s ease both;
+}
+
+.btn-primary{
+  display:inline-flex; align-items:center; gap:.6rem;
+  height:54px; padding:0 2.4rem;
+  background:linear-gradient(135deg,var(--g),var(--g-dim));
+  color:#0a0800; font-size:1.05rem; font-weight:800;
+  border:none; border-radius:10px; cursor:pointer;
+  position:relative; overflow:hidden;
+  transition:all .25s; letter-spacing:.02em;
+  white-space:nowrap;
+}
+.btn-primary::before{
+  content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transition:left .45s;
+}
+.btn-primary:hover::before{ left:140%; }
+.btn-primary:hover{
+  box-shadow:0 0 36px var(--glow), 0 8px 24px rgba(0,0,0,.45);
+  transform:translateY(-3px);
+}
+.btn-primary:active{ transform:scale(.97); }
+
+.btn-outline{
+  display:inline-flex; align-items:center; gap:.6rem;
+  height:54px; padding:0 2.4rem;
+  background:transparent;
+  border:2px solid rgba(212,160,23,.35);
+  color:var(--g); font-size:1.05rem; font-weight:700;
+  border-radius:10px; cursor:pointer;
+  transition:all .25s; white-space:nowrap;
+}
+.btn-outline:hover{
+  background:rgba(212,160,23,.09);
+  border-color:var(--g);
+  box-shadow:0 0 24px var(--glow);
+  transform:translateY(-3px);
+}
+
+/* stats row */
+.hero-stats{
+  display:flex; gap:3.5rem;
+  border-top:1px solid rgba(212,160,23,.2);
+  padding-top:2rem;
+  animation:fadeUp .5s .28s ease both;
+}
+.hs-num{
+  font-size:2.6rem; font-weight:900; color:var(--g);
+  line-height:1; text-shadow:0 0 24px var(--glow);
+  letter-spacing:-.02em;
+}
+.hs-lbl{
+  font-size:.78rem; color:var(--txd); margin-top:.3rem;
+  text-transform:uppercase; letter-spacing:.1em;
+}
+
+/* RIGHT */
+.hero-right{
+  background:linear-gradient(160deg,#0a0800 0%,#110f00 55%,#060400 100%);
+  border-left:1px solid rgba(212,160,23,.2);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:1.2rem; padding:2.5rem;
+  position:relative; z-index:2; overflow:hidden;
+}
+.hero-right::before{
+  content:''; position:absolute;
+  width:600px; height:600px; border-radius:50%;
+  border:70px solid rgba(212,160,23,.04);
+  top:-180px; right:-180px; pointer-events:none;
+}
+.hero-right::after{
+  content:''; position:absolute;
+  width:380px; height:380px; border-radius:50%;
+  border:50px solid rgba(212,160,23,.05);
+  bottom:-110px; left:-110px; pointer-events:none;
+}
+
+/* live badge */
+.live-badge{
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:rgba(34,197,94,.09);
+  border:1px solid rgba(34,197,94,.3);
+  color:#4ade80; font-size:.8rem; font-weight:800;
+  padding:.35rem 1.1rem; border-radius:999px;
+  letter-spacing:.08em; text-transform:uppercase;
+  position:relative; z-index:1;
+  animation:fadeUp .5s .1s ease both;
+}
+.live-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#4ade80; box-shadow:0 0 8px #4ade80;
+  animation:livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%    {opacity:.3;transform:scale(.6);}
+}
+
+/* hero event cards */
+.hcard{
+  width:100%; max-width:340px;
+  background:rgba(212,160,23,.06);
+  border:1px solid rgba(212,160,23,.22);
+  border-radius:18px; padding:1.25rem 1.5rem;
+  position:relative; z-index:1;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+  animation:fadeUp .5s ease both;
+}
+.hcard:nth-of-type(2){ animation-delay:.13s; }
+.hcard:hover{
+  transform:translateY(-5px);
+  box-shadow:0 0 36px rgba(212,160,23,.2);
+  border-color:var(--g);
+}
+.hcard-tag{
+  display:inline-block;
+  font-size:.7rem; font-weight:800; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--g);
+  background:rgba(212,160,23,.12);
+  border:1px solid rgba(212,160,23,.26);
+  border-radius:999px; padding:.16rem .7rem;
+  margin-bottom:.6rem;
+}
+.hcard-title{ font-size:1.05rem; font-weight:800; color:var(--tx); margin-bottom:.5rem; }
+.hcard-meta{ display:flex; gap:.9rem; font-size:.8rem; color:var(--txm); margin-bottom:.75rem; flex-wrap:wrap; }
+.hcard-foot{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:.7rem; border-top:1px solid rgba(212,160,23,.13);
+}
+.hcard-seats{
+  font-size:.75rem; font-weight:800; color:var(--g);
+  background:rgba(212,160,23,.1); border:1px solid rgba(212,160,23,.24);
+  border-radius:999px; padding:.18rem .7rem;
+}
+.hcard-btn{
+  height:34px; padding:0 1rem;
+  background:linear-gradient(135deg,var(--g-lt),var(--g));
+  color:#0a0800; font-size:.82rem; font-weight:800;
+  border:none; border-radius:8px; cursor:pointer;
+  transition:all .2s; box-shadow:0 0 10px rgba(212,160,23,.3);
+}
+.hcard-btn:hover{ box-shadow:0 0 20px var(--glow); transform:scale(1.05); }
+
+/* right stats strip */
+.hright-stats{
+  display:flex; gap:2.5rem;
+  background:rgba(212,160,23,.06);
+  border:1px solid rgba(212,160,23,.2);
+  border-radius:14px; padding:.9rem 2rem;
+  width:100%; max-width:340px;
+  justify-content:center; position:relative; z-index:1;
+  animation:fadeUp .5s .28s ease both;
+}
+.hrs-num{
+  font-size:1.7rem; font-weight:900; color:var(--g);
+  text-shadow:0 0 16px var(--glow); line-height:1; text-align:center;
+}
+.hrs-lbl{
+  font-size:.65rem; color:var(--txd); margin-top:.25rem;
+  text-transform:uppercase; letter-spacing:.09em; text-align:center;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARED SECTION UTILITIES
+═══════════════════════════════════════════════════════════════ */
+.wrap{
+  width:100%; max-width:1360px;
+  margin:0 auto; padding:0 3.5rem;
+}
+
+.sec-eyebrow{
+  font-size:.8rem; font-weight:800; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--g);
+  display:block; margin-bottom:.6rem;
+}
+.sec-h2{
+  font-size:clamp(2.2rem,3.5vw,3.4rem);
+  font-weight:900; color:var(--tx);
+  line-height:1.1; letter-spacing:-.02em;
+}
+.sec-h2 span{ color:var(--g); }
+.sec-sub{
+  font-size:1.1rem; color:var(--txm); margin-top:.65rem;
+  line-height:1.7;
+}
+.gold-bar{
+  display:block; width:56px; height:3.5px;
+  background:linear-gradient(90deg,var(--g),transparent);
+  border-radius:2px; margin-bottom:.85rem;
+}
+.sec-line{
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EVENTS SECTION
+═══════════════════════════════════════════════════════════════ */
+.events-sec{
+  background:var(--bg2); padding:7rem 0;
+  position:relative;
+}
+
+.evgrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.75rem; margin-top:3.5rem;
+}
+
+/* event card */
+.ecard{
+  background:#0d0d0d;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:18px; overflow:hidden;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+}
+.ecard:hover{
+  transform:translateY(-7px);
+  box-shadow:0 0 50px rgba(212,160,23,.2);
+  border-color:rgba(212,160,23,.35);
+}
+.ecard-thumb{
+  height:200px;
+  background:linear-gradient(135deg,#1a1400,#2a2000);
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.5rem; position:relative;
+}
+.ecard-thumb::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7));
+}
+.ecard-cat{
+  position:absolute; top:1rem; left:1rem; z-index:1;
+  background:rgba(0,0,0,.8); color:var(--g);
+  font-size:.7rem; font-weight:800; letter-spacing:.09em;
+  text-transform:uppercase; padding:.2rem .75rem;
+  border-radius:999px; border:1px solid rgba(212,160,23,.32);
+  backdrop-filter:blur(6px);
+}
+.ecard-date{
+  position:absolute; top:1rem; right:1rem; z-index:1;
+  background:linear-gradient(135deg,var(--g),var(--g-dim));
+  color:#0a0800; font-weight:900; font-size:.85rem;
+  padding:.3rem .7rem; border-radius:9px;
+  box-shadow:0 0 14px var(--glow); text-align:center;
+}
+.ecard-date .day{ font-size:1.45rem; display:block; line-height:1; }
+
+.ecard-body{ padding:1.5rem; }
+.ecard-title{ font-size:1.1rem; font-weight:800; color:var(--tx); margin-bottom:.8rem; }
+.ecard-meta { display:flex; flex-direction:column; gap:.38rem; margin-bottom:1.1rem; }
+.ecard-meta-row{
+  display:flex; align-items:center; gap:.55rem;
+  font-size:.88rem; color:var(--txm);
+}
+.em-icon{ color:var(--g); width:15px; flex-shrink:0; }
+.cap-nums{
+  display:flex; justify-content:space-between;
+  font-size:.78rem; color:var(--txd); margin-bottom:.35rem;
+}
+.cap-bar{
+  height:4px; background:rgba(255,255,255,.07);
+  border-radius:999px; overflow:hidden;
+}
+.cap-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--g-dim),var(--g));
+  border-radius:999px; box-shadow:0 0 8px rgba(212,160,23,.4);
+}
+
+/* reg button — 50px tall, big font */
+.ecard-btn{
+  width:100%; height:50px;
+  background:linear-gradient(135deg,var(--g),var(--g-dim));
+  color:#0a0800; font-size:.98rem; font-weight:800;
+  border:none; border-radius:10px; cursor:pointer;
+  margin-top:1rem; position:relative; overflow:hidden;
+  transition:all .25s; letter-spacing:.02em;
+}
+.ecard-btn::before{
+  content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transition:left .4s;
+}
+.ecard-btn:hover::before{ left:140%; }
+.ecard-btn:hover{
+  box-shadow:0 0 30px var(--glow); transform:translateY(-2px);
+}
+
+/* skeleton */
+.skel{
+  background:linear-gradient(90deg,#111 25%,#1c1c1c 50%,#111 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.6s infinite; border-radius:8px;
+}
+@keyframes shimmer{ to{ background-position:-200% 0; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════════════════════════════ */
+.feat-sec{
+  background:var(--bg); padding:7rem 0; position:relative;
+}
+.feat-grid{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1.5rem; margin-top:3.5rem;
+}
+.fcard{
+  background:var(--bg3);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px; padding:2.25rem 2rem;
+  position:relative; overflow:hidden;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+}
+.fcard::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:2.5px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);
+  opacity:0; transition:opacity .3s;
+}
+.fcard:hover{ transform:translateY(-7px); box-shadow:0 0 44px rgba(212,160,23,.17); border-color:rgba(212,160,23,.3); }
+.fcard:hover::before{ opacity:1; }
+.fcard-icon{
+  width:62px; height:62px; border-radius:14px;
+  background:rgba(212,160,23,.11);
+  border:1px solid rgba(212,160,23,.24);
+  display:grid; place-items:center;
+  font-size:1.6rem; margin-bottom:1.5rem;
+  transition:box-shadow .3s;
+}
+.fcard:hover .fcard-icon{ box-shadow:0 0 24px var(--glow); }
+.fcard h3{ font-size:1.15rem; font-weight:800; color:var(--tx); margin-bottom:.6rem; }
+.fcard p { font-size:.95rem; color:var(--txm); line-height:1.7; }
+.fcard-num{
+  position:absolute; bottom:1.5rem; right:1.75rem;
+  font-size:4rem; font-weight:900;
+  color:rgba(212,160,23,.06); line-height:1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CTA STRIP
+═══════════════════════════════════════════════════════════════ */
+.cta-sec{
+  background:linear-gradient(135deg,#0f0d00,#1c1800,#0a0800);
+  border-top:1px solid rgba(212,160,23,.22);
+  border-bottom:1px solid rgba(212,160,23,.22);
+  padding:7rem 0; text-align:center; position:relative; overflow:hidden;
+}
+.cta-sec::before{
+  content:''; position:absolute; inset:0;
+  background-image:radial-gradient(circle,rgba(212,160,23,.055) 1px,transparent 1px);
+  background-size:30px 30px;
+}
+.cta-sec h2{
+  font-size:clamp(2rem,3.5vw,3.4rem);
+  font-weight:900; color:var(--tx);
+  margin-bottom:.85rem; position:relative; z-index:1;
+  letter-spacing:-.02em;
+}
+.cta-sec h2 span{ color:var(--g); }
+.cta-sec p{
+  font-size:1.15rem; color:var(--txm);
+  margin-bottom:2.5rem; position:relative; z-index:1;
+}
+.cta-btns{
+  display:flex; gap:1.1rem; justify-content:center;
+  flex-wrap:wrap; position:relative; z-index:1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+.footer{
+  background:var(--bg2);
+  border-top:1px solid rgba(212,160,23,.16);
+  padding:5rem 0 2.5rem;
+}
+.footer-grid{
+  display:grid; grid-template-columns:2.2fr 1fr 1fr 1fr;
+  gap:3rem; margin-bottom:3rem;
+}
+.footer-brand-desc{
+  font-size:.95rem; color:var(--txm); line-height:1.75;
+  margin-top:.9rem; max-width:290px;
+}
+.footer-col h4{
+  font-size:.78rem; font-weight:800;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--g); margin-bottom:1.1rem;
+}
+.footer-col ul{ list-style:none; display:flex; flex-direction:column; gap:.6rem; }
+.footer-col a{
+  font-size:.95rem; color:var(--txm);
+  transition:color .2s;
+}
+.footer-col a:hover{ color:var(--g); }
+.footer-bottom{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:1.75rem;
+  border-top:1px solid rgba(255,255,255,.06);
+  font-size:.88rem; color:var(--txd);
+}
+.footer-bottom span{ color:var(--g); }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(20px); }
+  to  { opacity:1; transform:none; }
+}
+.fu { animation:fadeUp .55s ease both; }
+.d1 { animation-delay:.07s; }
+.d2 { animation-delay:.14s; }
+.d3 { animation-delay:.21s; }
+.d4 { animation-delay:.28s; }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .evgrid   { grid-template-columns:repeat(2,1fr); }
+  .feat-grid{ grid-template-columns:repeat(2,1fr); }
+  .footer-grid{ grid-template-columns:1fr 1fr; }
+}
+@media(max-width:900px){
+  .hero{ grid-template-columns:1fr; height:auto; min-height:calc(100vh - var(--nav-h)); }
+  .hero-right{ min-height:420px; border-left:none; border-top:1px solid rgba(212,160,23,.2); }
+  .hero-left{ padding:4.5rem 2rem 3rem; }
+  .hero-dots{ inset:0; }
+  .nav-links,.nav-cta{ display:none; }
+  .burger{ display:flex; }
+  .nav-links.open,.nav-cta.open{
+    display:flex; flex-direction:column;
+    position:fixed; top:var(--nav-h); left:0; right:0;
+    background:rgba(8,8,8,.97); padding:1.75rem 2.5rem;
+    border-bottom:1px solid rgba(212,160,23,.22); z-index:199;
+    backdrop-filter:blur(24px); gap:.5rem;
+  }
+  .nav-links.open a{ font-size:1.1rem; padding:.6rem .75rem; }
+}
+@media(max-width:640px){
+  .evgrid  { grid-template-columns:1fr; }
+  .feat-grid{ grid-template-columns:1fr; }
+  .footer-grid{ grid-template-columns:1fr; gap:2rem; }
+  .hero-btns{ flex-direction:column; }
+  .wrap{ padding:0 1.5rem; }
+  .hero-left{ padding:3.5rem 1.5rem 2.5rem; }
+}
+</style>
+</head>
 <body>
 
-<header>
-<h1>CampusConnect</h1>
-<nav>
-<a href="/">Home</a>
-<a href="/events">Events</a>
-<a href="/admin">Admin</a>
-</nav>
-</header>
+<div id="cg"></div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="navbar">
+  <div class="nav-wrap">
+
+    <a href="/" class="logo">
+      <div class="logo-icon">🎓</div>
+      Campus<span>Connect</span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/" class="active">Home</a></li>
+      <li><a href="/events">Events</a></li>
+    </ul>
+
+    <div class="nav-cta" id="navCta">
+      <!-- Dynamically swapped by initNavAuth() below -->
+      <a href="/role-login" id="nav-signin-btn" class="btn-nav-ghost">Sign In</a>
+      <a href="/register"   id="nav-join-btn"   class="btn-nav-fill">Join Now ✦</a>
+    </div>
+
+    <button class="burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════════════ -->
 <section class="hero">
-<h2>Welcome to CampusConnect</h2>
-<p>Manage and explore college events easily.</p>
-<a href="/events" class="btn">View Events</a>
+  <canvas id="pcanvas"></canvas>
+  <div class="hero-dots"></div>
+
+  <!-- LEFT -->
+  <div class="hero-left">
+
+    <div class="hero-badge">
+      <span class="bdot"></span>
+      ✦ New Events Added Weekly
+    </div>
+
+    <h1 class="hero-h1">
+      Your Campus,<br>
+      <span class="cg">Your</span>
+      <span class="co"> Events.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Discover workshops, fests, seminars &amp; competitions
+      happening at your college. Register in seconds and
+      never miss what matters.
+    </p>
+
+    <div class="hero-btns">
+      <a href="/events"              class="btn-primary">✦ Browse Events</a>
+      <a href="/views/register.html" class="btn-outline">Create Account →</a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hs-num" id="s-events">—</div>
+        <div class="hs-lbl">Active Events</div>
+      </div>
+      <div>
+        <div class="hs-num" id="s-regs">—</div>
+        <div class="hs-lbl">Registrations</div>
+      </div>
+      <div>
+        <div class="hs-num">5+</div>
+        <div class="hs-lbl">Departments</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="hero-right">
+
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      Live Registrations Open
+    </div>
+
+    <div class="hcard">
+      <div class="hcard-tag">💻 Technical</div>
+      <div class="hcard-title">National Hackathon 2025</div>
+      <div class="hcard-meta">
+        <span>📅 Apr 10, 2025</span>
+        <span>📍 Main Auditorium</span>
+      </div>
+      <div class="hcard-foot">
+        <span class="hcard-seats">42 seats left</span>
+        <button class="hcard-btn" onclick="location.href='/events'">Register →</button>
+      </div>
+    </div>
+
+    <div class="hcard">
+      <div class="hcard-tag">🎭 Cultural</div>
+      <div class="hcard-title">Freshers' Day Celebrations</div>
+      <div class="hcard-meta">
+        <span>📅 May 15, 2025</span>
+        <span>📍 Open Amphitheatre</span>
+      </div>
+      <div class="hcard-foot">
+        <span class="hcard-seats">120 seats left</span>
+        <button class="hcard-btn" onclick="location.href='/events'">Register →</button>
+      </div>
+    </div>
+
+    <div class="hright-stats">
+      <div>
+        <div class="hrs-num" id="rs-events">—</div>
+        <div class="hrs-lbl">Events</div>
+      </div>
+      <div>
+        <div class="hrs-num" id="rs-regs">—</div>
+        <div class="hrs-lbl">Registered</div>
+      </div>
+      <div>
+        <div class="hrs-num">∞</div>
+        <div class="hrs-lbl">Free</div>
+      </div>
+    </div>
+
+  </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     UPCOMING EVENTS
+═══════════════════════════════════════════════════════════════ -->
+<section class="events-sec">
+  <div class="sec-line"></div>
+  <div class="wrap">
+    <div style="text-align:center">
+      <span class="gold-bar" style="margin:0 auto .85rem"></span>
+      <span class="sec-eyebrow">Upcoming Events</span>
+      <h2 class="sec-h2">Don't Miss <span>This Week</span></h2>
+      <p class="sec-sub">Seats fill fast — register before they're gone.</p>
+    </div>
+
+    <div class="evgrid" id="evgrid">
+      <!-- skeletons -->
+      <div class="ecard"><div class="ecard-thumb skel" style="font-size:0"></div><div class="ecard-body" style="display:flex;flex-direction:column;gap:.7rem"><div class="skel" style="height:17px;width:60%"></div><div class="skel" style="height:14px;width:82%"></div><div class="skel" style="height:50px;margin-top:.3rem;border-radius:10px"></div></div></div>
+      <div class="ecard"><div class="ecard-thumb skel" style="font-size:0"></div><div class="ecard-body" style="display:flex;flex-direction:column;gap:.7rem"><div class="skel" style="height:17px;width:52%"></div><div class="skel" style="height:14px;width:75%"></div><div class="skel" style="height:50px;margin-top:.3rem;border-radius:10px"></div></div></div>
+      <div class="ecard"><div class="ecard-thumb skel" style="font-size:0"></div><div class="ecard-body" style="display:flex;flex-direction:column;gap:.7rem"><div class="skel" style="height:17px;width:66%"></div><div class="skel" style="height:14px;width:80%"></div><div class="skel" style="height:50px;margin-top:.3rem;border-radius:10px"></div></div></div>
+    </div>
+
+    <div style="text-align:center;margin-top:3rem">
+      <a href="/events" class="btn-outline" style="font-size:1rem">View All Events ✦</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FEATURES
+═══════════════════════════════════════════════════════════════ -->
+<section class="feat-sec">
+  <div class="sec-line"></div>
+  <div class="wrap">
+    <div style="text-align:center">
+      <span class="gold-bar" style="margin:0 auto .85rem"></span>
+      <span class="sec-eyebrow">Why CampusConnect</span>
+      <h2 class="sec-h2">Built for <span>Excellence</span></h2>
+      <p class="sec-sub">Everything students &amp; organisers need, crafted to perfection.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="fcard fu d1">
+        <div class="fcard-icon">⚡</div>
+        <h3>Instant Registration</h3>
+        <p>Register for any event in under 30 seconds with your college credentials.</p>
+        <div class="fcard-num">01</div>
+      </div>
+      <div class="fcard fu d2">
+        <div class="fcard-icon">📱</div>
+        <h3>QR Ticket</h3>
+        <p>Get a unique QR code ticket for each registered event — show it at the gate.</p>
+        <div class="fcard-num">02</div>
+      </div>
+      <div class="fcard fu d3">
+        <div class="fcard-icon">🔍</div>
+        <h3>Search &amp; Filter</h3>
+        <p>Find events by category, department, or keyword in seconds.</p>
+        <div class="fcard-num">03</div>
+      </div>
+      <div class="fcard fu d4">
+        <div class="fcard-icon">📊</div>
+        <h3>Admin Dashboard</h3>
+        <p>Real-time stats, attendee lists, and full event control for organisers.</p>
+        <div class="fcard-num">04</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════════════════════ -->
+<section class="cta-sec">
+  <div class="wrap">
+    <span class="gold-bar" style="display:block;margin:0 auto 1rem"></span>
+    <h2>Ready to <span>Join</span> the Community?</h2>
+    <p>Create your free account and start registering for events today.</p>
+    <div class="cta-btns">
+      <a href="/views/register.html" class="btn-primary">✦ Get Started Free</a>
+      <a href="/events"              class="btn-outline">Browse Events →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="logo">
+          <div class="logo-icon" style="width:38px;height:38px;font-size:1.1rem">🎓</div>
+          Campus<span>Connect</span>
+        </div>
+        <p class="footer-brand-desc">
+          A centralised platform for college events — built for students, by students.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="/events">Browse Events</a></li>
+          <li><a href="/register">Sign Up</a></li>
+          <li><a href="/role-login">Login</a></li>
+          <li><a href="/role-login">Admin Portal</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul>
+          <li><a href="/events">Technical</a></li>
+          <li><a href="/events">Cultural</a></li>
+          <li><a href="/events">Sports</a></li>
+          <li><a href="/events">Workshops</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="/cdn-cgi/l/email-protection#c8aba9a5b8bdbbaba7a6a6adabbc88aba7a4a4adafade6adacbd"><span class="__cf_email__" data-cfemail="6f0c0e021f1a1c0c0001010a0c1b2f0c0003030a080a410a0b1a">[email&#160;protected]</span></a></li>
+          <li><a href="https://github.com/Kavinkumar-2006" target="_blank">GitHub ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 CampusConnect · Built by <span>Kavinkumar P</span> · B.Tech IT</p>
+      <p>Made with ❤️ for campus life</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+"use strict";
+
+/* cursor */
+const cg = document.getElementById("cg");
+document.addEventListener("mousemove", e => {
+  cg.style.left = e.clientX + "px";
+  cg.style.top  = e.clientY + "px";
+});
+
+/* navbar */
+window.addEventListener("scroll", () =>
+  document.getElementById("navbar").classList.toggle("scrolled", scrollY > 30)
+);
+
+/* hamburger */
+document.getElementById("burger").addEventListener("click", function(){
+  this.classList.toggle("open");
+  document.getElementById("navLinks").classList.toggle("open");
+  document.getElementById("navCta").classList.toggle("open");
+});
+
+/* ── particle canvas ──────────────────────── */
+(function(){
+  const c = document.getElementById("pcanvas");
+  const x = c.getContext("2d");
+  function sz(){
+    c.width  = c.parentElement.offsetWidth;
+    c.height = c.parentElement.offsetHeight;
+  }
+  new ResizeObserver(sz).observe(c.parentElement);
+  sz();
+  const N = 75;
+  const pts = Array.from({length:N}, ()=>({
+    x: Math.random()*c.width,
+    y: Math.random()*c.height,
+    vx:(Math.random()-.5)*.25,
+    vy:(Math.random()-.5)*.25,
+    r: Math.random()*1.6+.3,
+    a: Math.random()*.30+.05
+  }));
+  (function loop(){
+    x.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>c.width)  p.vx*=-1;
+      if(p.y<0||p.y>c.height) p.vy*=-1;
+      x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle=`rgba(212,160,23,${p.a})`; x.fill();
+    });
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){
+        x.beginPath();
+        x.moveTo(pts[i].x,pts[i].y);
+        x.lineTo(pts[j].x,pts[j].y);
+        x.strokeStyle=`rgba(212,160,23,${.06*(1-d/100)})`;
+        x.lineWidth=.5; x.stroke();
+      }
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ── scroll reveal ────────────────────────── */
+const io = new IntersectionObserver(es => {
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity   = "1";
+      e.target.style.transform = "translateY(0)";
+    }
+  });
+},{threshold:.08});
+document.querySelectorAll(".ecard,.fcard").forEach(el=>{
+  el.style.opacity   = "0";
+  el.style.transform = "translateY(24px)";
+  el.style.transition= "opacity .6s ease, transform .6s ease";
+  io.observe(el);
+});
+
+/* ── category emoji ───────────────────────── */
+const CAT = {
+  technical:"💻",cultural:"🎭",sports:"⚽",
+  workshop:"🛠",seminar:"🎓",general:"📋"
+};
+
+/* ── render event card ────────────────────── */
+function renderCard(e){
+  const reg = e.registered ?? 0;
+  const cap = e.capacity   ?? 100;
+  const pct = Math.min(100, Math.round(reg/cap*100));
+  const cat = (e.category||"general").toLowerCase();
+  const ico = CAT[cat] || "📋";
+  const d   = e.date ? new Date(e.date) : null;
+  const day = d ? d.getDate() : "—";
+  const mon = d ? d.toLocaleString("en",{month:"short"}).toUpperCase() : "";
+  const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `
+  <div class="ecard">
+    <div class="ecard-thumb">
+      <span class="ecard-cat">${ico} ${esc(cat.charAt(0).toUpperCase()+cat.slice(1))}</span>
+      <div class="ecard-date"><span class="day">${day}</span>${mon}</div>
+      ${ico}
+    </div>
+    <div class="ecard-body">
+      <div class="ecard-title">${esc(e.title||'Untitled')}</div>
+      <div class="ecard-meta">
+        <div class="ecard-meta-row">
+          <span class="em-icon">📅</span>
+          ${d ? d.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}) : "TBD"}
+        </div>
+        <div class="ecard-meta-row"><span class="em-icon">📍</span>${esc(e.venue||'—')}</div>
+        ${e.time?`<div class="ecard-meta-row"><span class="em-icon">🕐</span>${esc(e.time)}</div>`:""}
+      </div>
+      <div>
+        <div class="cap-nums"><span>${reg} registered</span><span>${cap-reg} seats left</span></div>
+        <div class="cap-bar"><div class="cap-fill" style="width:${pct}%"></div></div>
+      </div>
+      <button class="ecard-btn" onclick="location.href='/event-register?id=${esc(e.id)}'">
+        Register Now →
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ── load data ────────────────────────────── */
+document.addEventListener("DOMContentLoaded", async ()=>{
+
+  /* stats */
+  try{
+    const {data:s} = await (await fetch("/api/admin/stats")).json();
+    ["s-events","rs-events"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent = s.totalEvents ?? "—";
+    });
+    ["s-regs","rs-regs"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent = s.totalRegistrations ?? "—";
+    });
+  }catch{}
+
+  /* events */
+  const grid = document.getElementById("evgrid");
+  try{
+    const {data:evs} = await (await fetch("/api/events")).json();
+    const list = (evs||[]).slice(0,3);
+    if(list.length){
+      grid.innerHTML = list.map(renderCard).join("");
+      grid.querySelectorAll(".ecard").forEach(el=>{
+        el.style.opacity   = "0";
+        el.style.transform = "translateY(24px)";
+        el.style.transition= "opacity .6s ease, transform .6s ease";
+        io.observe(el);
+      });
+    } else {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--txm)">
+        <div style="font-size:3rem;opacity:.2;margin-bottom:1rem">🗓️</div>
+        <h3 style="color:var(--tx);font-size:1.2rem;margin-bottom:.5rem">No upcoming events yet</h3>
+        <a href="/role-login" style="color:var(--g);font-weight:700;font-size:1rem">Create one →</a>
+      </div>`;
+       }
+  } catch(e) {
+    if(grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--txm)">Failed to load events</div>`;
+  }
+
+  /* ── Navbar auth state ──────────────────────────────────────
+     If user is already logged in (sessionStorage), swap Sign In
+     button to show avatar + dashboard link instead.
+  ──────────────────────────────────────────────────────────── */
+  (function initNavAuth() {
+    var user = null;
+    try { user = JSON.parse(sessionStorage.getItem('cc_user')); } catch(e) {}
+    if (!user) return; // not logged in — keep Sign In / Join Now buttons
+
+    var cta = document.getElementById('navCta');
+    if (!cta) return;
+
+    var dashMap = { admin: '/admin', staff: '/staff-dashboard', student: '/student-dashboard' };
+    var dashUrl = dashMap[user.role] || '/student-dashboard';
+    var initials = (user.name || 'U').split(' ').map(function(w){ return w[0] || ''; }).join('').substring(0,2).toUpperCase();
+
+    cta.innerHTML =
+      '<a href="' + dashUrl + '" style="display:inline-flex;align-items:center;gap:.55rem;padding:.4rem .95rem;background:rgba(212,160,23,.08);border:1.5px solid rgba(212,160,23,.3);border-radius:8px;font-size:.88rem;font-weight:600;color:var(--g);transition:all .2s" onmouseover="this.style.background=\'rgba(212,160,23,.16)\'" onmouseout="this.style.background=\'rgba(212,160,23,.08)\'">' +
+        '<span style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d4a017,#a07810);display:grid;place-items:center;font-size:.72rem;font-weight:900;color:#0a0800;flex-shrink:0">' + initials + '</span>' +
+        'Dashboard →' +
+      '</a>' +
+      '<button onclick="sessionStorage.removeItem(\'cc_user\');location.reload()" style="height:31px;padding:0 .9rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#f87171;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">Sign Out</button>';
+  })();
+
+});
+</script>
 </body>
 </html>

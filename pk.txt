@@ -1,0 +1,4 @@
+Role           Admin
+Email          admin@campusconnect.com
+Password       GoldSecure@2026
+Admin ID       CC-ADMIN-7294

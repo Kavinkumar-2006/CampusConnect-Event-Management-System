@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign In – CampusConnect</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  min-height:100%;
+  background:#080808;
+  color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+#bgc{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+#cg{width:600px;height:600px;position:fixed;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,.07)0%,transparent 65%);
+  transform:translate(-50%,-50%);z-index:1;}
+.page{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:3rem 1.5rem;position:relative;z-index:2;
+}
+/* BRAND */
+.brand{display:flex;flex-direction:column;align-items:center;gap:1rem;margin-bottom:3rem;}
+.brand-icon{
+  width:100px;height:100px;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  border-radius:24px;display:grid;place-items:center;font-size:3.2rem;
+  box-shadow:0 0 50px rgba(212,160,23,.5),0 10px 32px rgba(0,0,0,.6);
+  animation:glow 2.5s ease-in-out infinite;
+}
+@keyframes glow{
+  0%,100%{box-shadow:0 0 25px rgba(212,160,23,.4);}
+  50%    {box-shadow:0 0 60px rgba(212,160,23,.7),0 0 100px rgba(212,160,23,.2);}
+}
+.brand-name{font-size:3.4rem;font-weight:900;color:#f0ece0;letter-spacing:-.01em;}
+.brand-name span{color:#d4a017;}
+.brand-tag{font-size:1.1rem;color:rgba(240,236,224,.45);letter-spacing:.09em;text-transform:uppercase;}
+
+/* CARD */
+.card{
+  width:100%;max-width:680px;
+  background:#0f0f0f;
+  border:2px solid rgba(212,160,23,.32);
+  border-radius:30px;
+  padding:4.5rem 5rem;
+  box-shadow:0 0 90px rgba(212,160,23,.1),0 32px 100px rgba(0,0,0,.7);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,#d4a017,transparent);
+}
+.ctitle{font-size:3rem;font-weight:900;color:#f0ece0;margin-bottom:.45rem;letter-spacing:-.01em;}
+.csub{font-size:1.35rem;color:rgba(240,236,224,.45);margin-bottom:3rem;line-height:1.5;}
+
+/* FORM GROUP */
+.fg{margin-bottom:2.2rem;}
+.lbl{
+  display:block;font-size:1.15rem;font-weight:700;
+  color:rgba(240,236,224,.65);margin-bottom:.8rem;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.lbl .req{color:#d4a017;margin-left:2px;}
+.iw{position:relative;}
+.ico{
+  position:absolute;left:1.5rem;top:50%;transform:translateY(-50%);
+  font-size:1.7rem;pointer-events:none;opacity:.4;transition:opacity .2s;
+}
+.iw:focus-within .ico{opacity:.85;}
+
+/* INPUT */
+.inp{
+  width:100%;height:80px;
+  padding:0 1.5rem 0 5rem;
+  background:rgba(255,255,255,.04);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:16px;
+  font-size:1.35rem;
+  color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.inp:focus{
+  outline:none;border-color:#d4a017;
+  box-shadow:0 0 0 4px rgba(212,160,23,.16);
+  background:rgba(212,160,23,.04);
+}
+.inp::placeholder{color:rgba(240,236,224,.18);}
+.inp.err{border-color:rgba(239,68,68,.7);box-shadow:0 0 0 4px rgba(239,68,68,.12);}
+.eye{
+  position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;font-size:1.7rem;cursor:pointer;
+  color:rgba(240,236,224,.35);transition:color .2s;
+}
+.eye:hover{color:#d4a017;}
+.ferr{font-size:1.05rem;color:#ef4444;margin-top:.45rem;display:none;}
+.ferr.show{display:block;}
+
+/* EXTRAS ROW */
+.extras{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:2.8rem;
+}
+.ckwrap{
+  display:flex;align-items:center;gap:.75rem;
+  font-size:1.25rem;color:rgba(240,236,224,.45);cursor:pointer;
+}
+.ckwrap input{accent-color:#d4a017;width:24px;height:24px;}
+.forgot{
+  background:none;border:none;cursor:pointer;padding:0;
+  font-size:1.25rem;color:#d4a017;font-weight:700;
+  font-family:Georgia,'Times New Roman',serif;transition:color .2s;
+}
+.forgot:hover{color:#f5c842;text-decoration:underline;}
+
+/* SIGN IN BUTTON */
+#signinbtn{
+  width:100%;height:80px;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  color:#0a0800;border:none;border-radius:16px;
+  font-size:1.5rem;font-weight:900;letter-spacing:.05em;
+  cursor:pointer;
+  font-family:Georgia,'Times New Roman',serif;
+  display:flex;align-items:center;justify-content:center;gap:.7rem;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+#signinbtn::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+  transition:left .45s;
+}
+#signinbtn:hover::before{left:140%;}
+#signinbtn:hover{
+  box-shadow:0 0 55px rgba(212,160,23,.6),0 12px 32px rgba(0,0,0,.5);
+  transform:translateY(-3px);
+}
+#signinbtn:active{transform:scale(.97);}
+#signinbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* DIVIDER */
+.divider{
+  display:flex;align-items:center;gap:1.2rem;
+  margin:2.8rem 0;color:rgba(240,236,224,.22);font-size:1.15rem;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1.5px;background:rgba(255,255,255,.08);}
+
+/* SWITCH */
+.switch{text-align:center;font-size:1.3rem;color:rgba(240,236,224,.45);}
+.switch a{color:#d4a017;font-weight:800;transition:color .2s;}
+.switch a:hover{color:#f5c842;}
+
+/* SUCCESS VIEW */
+.sview{display:none;text-align:center;padding:2rem 0;}
+.sview.show{display:block;}
+.sring{
+  width:120px;height:120px;border-radius:50%;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  display:grid;place-items:center;font-size:3.5rem;
+  margin:0 auto 2rem;
+  box-shadow:0 0 0 18px rgba(212,160,23,.1),0 0 0 36px rgba(212,160,23,.05);
+  animation:pop .45s ease;
+}
+@keyframes pop{0%{transform:scale(0);opacity:0;}70%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
+.sview h3{color:#d4a017;font-size:2.6rem;margin-bottom:.5rem;}
+.sview p{color:rgba(240,236,224,.45);font-size:1.25rem;}
+
+/* FOOTER */
+.pfooter{margin-top:2.2rem;text-align:center;font-size:1rem;color:rgba(240,236,224,.22);}
+.pfooter a{color:rgba(212,160,23,.5);}
+.pfooter a:hover{color:#d4a017;}
+
+/* TOASTS */
+.twrap{position:fixed;bottom:2rem;right:2rem;display:flex;flex-direction:column;gap:.65rem;z-index:9999;}
+.toast{
+  display:flex;align-items:flex-start;gap:.9rem;
+  min-width:320px;padding:1.2rem 1.5rem;
+  background:#111;border:2px solid rgba(212,160,23,.3);
+  border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.7);
+  animation:tin .3s ease;
+}
+.toast.terror{border-color:rgba(239,68,68,.5);}
+.toast.out{animation:tout .3s ease forwards;}
+.tico{font-size:1.5rem;flex-shrink:0;}
+.ttitle{font-weight:800;font-size:1.1rem;color:#f0ece0;}
+.tmsg{font-size:.95rem;color:rgba(240,236,224,.5);margin-top:3px;}
+@keyframes tin{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(24px)}}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="cg"></div>
+
+<div class="page">
+
+  <!-- BRAND -->
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <div class="brand-name">Campus<span>Connect</span></div>
+    <div class="brand-tag">College Event Management</div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+
+    <!-- ── LOGIN VIEW ── -->
+    <div id="vlogin">
+      <div class="ctitle">Welcome Back</div>
+      <div class="csub">Sign in to your account to continue</div>
+
+      <div class="fg">
+        <label class="lbl">Email Address <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">📧</span>
+          <input type="email" id="f-em" class="inp"
+                 placeholder="yourname@college.edu" autocomplete="email"/>
+        </div>
+        <div class="ferr" id="e-em">Please enter a valid email address.</div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Password <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">🔒</span>
+          <input type="password" id="f-pw" class="inp"
+                 placeholder="Enter your password"
+                 style="padding-right:5.5rem"
+                 autocomplete="current-password"/>
+          <button type="button" class="eye" id="eyebtn">👁</button>
+        </div>
+        <div class="ferr" id="e-pw">Password is required.</div>
+      </div>
+
+      <div class="extras">
+        <label class="ckwrap">
+          <input type="checkbox" id="rem-chk"/>
+          Remember me
+        </label>
+        <button type="button" class="forgot" id="forgotbtn">Forgot password?</button>
+      </div>
+
+      <!-- THE SIGN IN BUTTON — type=button, onclick=doLogin() -->
+      <button type="button" id="signinbtn" onclick="doLogin()">
+        <span id="btnlbl">Sign In →</span>
+      </button>
+
+      <div class="divider">or</div>
+      <div class="switch">
+        Don't have an account?
+        <a href="/register">Create one here →</a>
+      </div>
+    </div>
+
+    <!-- ── FORGOT VIEW ── -->
+    <div id="vforgot" style="display:none;">
+      <div class="ctitle">Reset Password</div>
+      <div class="csub">Enter your email — we'll send reset instructions.</div>
+      <div class="fg">
+        <label class="lbl">Email Address <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">📧</span>
+          <input type="email" id="f-rem" class="inp" placeholder="yourname@college.edu"/>
+        </div>
+        <div class="ferr" id="e-rem">Enter a valid email.</div>
+      </div>
+      <button type="button" id="resetbtn" style="
+        width:100%;height:80px;background:linear-gradient(135deg,#d4a017,#a07810);
+        color:#0a0800;border:none;border-radius:16px;font-size:1.5rem;font-weight:900;
+        cursor:pointer;font-family:Georgia,'Times New Roman',serif;letter-spacing:.04em;
+      " onclick="doReset()">Send Reset Link →</button>
+      <div class="divider">or</div>
+      <div class="switch"><a href="#" onclick="showLogin();return false;">← Back to Sign In</a></div>
+    </div>
+
+    <!-- ── SUCCESS VIEW ── -->
+    <div class="sview" id="vsuccess">
+      <div class="sring">✅</div>
+      <h3>Signed In!</h3>
+      <p>Welcome back. Redirecting you now…</p>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="pfooter">
+    <a href="/">← Back to Home</a> &nbsp;·&nbsp; © 2025 CampusConnect
+  </div>
+</div>
+
+<div class="twrap" id="twrap"></div>
+
+<script>
+// ── Particle canvas ──────────────────────────────────────────
+(function(){
+  var c=document.getElementById('bgc'),x=c.getContext('2d');
+  function sz(){c.width=innerWidth;c.height=innerHeight;}
+  window.addEventListener('resize',sz);sz();
+  var p=[];
+  for(var i=0;i<60;i++) p.push({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,
+    r:Math.random()*1.5+.3,a:Math.random()*.28+.05
+  });
+  (function loop(){
+    x.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<p.length;i++){
+      p[i].x+=p[i].vx; p[i].y+=p[i].vy;
+      if(p[i].x<0||p[i].x>c.width) p[i].vx*=-1;
+      if(p[i].y<0||p[i].y>c.height) p[i].vy*=-1;
+      x.beginPath();x.arc(p[i].x,p[i].y,p[i].r,0,Math.PI*2);
+      x.fillStyle='rgba(212,160,23,'+p[i].a+')';x.fill();
+    }
+    for(var i=0;i<p.length;i++) for(var j=i+1;j<p.length;j++){
+      var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);
+        x.strokeStyle='rgba(212,160,23,'+(0.055*(1-d/110))+')';x.lineWidth=.5;x.stroke();}
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+// ── Cursor glow ──────────────────────────────────────────────
+document.addEventListener('mousemove',function(e){
+  var el=document.getElementById('cg');
+  el.style.left=e.clientX+'px';el.style.top=e.clientY+'px';
+});
+
+// ── Eye toggle ───────────────────────────────────────────────
+document.getElementById('eyebtn').addEventListener('click',function(){
+  var i=document.getElementById('f-pw');
+  var show=i.type==='password';
+  i.type=show?'text':'password';
+  this.textContent=show?'🙈':'👁';
+});
+
+// ── Forgot / Back ────────────────────────────────────────────
+document.getElementById('forgotbtn').addEventListener('click',function(){
+  document.getElementById('vlogin').style.display='none';
+  document.getElementById('vforgot').style.display='block';
+});
+function showLogin(){
+  document.getElementById('vforgot').style.display='none';
+  document.getElementById('vlogin').style.display='block';
+}
+
+// ── Clear errors on type ─────────────────────────────────────
+document.getElementById('f-em').addEventListener('input',function(){
+  this.classList.remove('err');
+  document.getElementById('e-em').classList.remove('show');
+});
+document.getElementById('f-pw').addEventListener('input',function(){
+  this.classList.remove('err');
+  document.getElementById('e-pw').classList.remove('show');
+});
+
+// ── Toast ────────────────────────────────────────────────────
+function showToast(type,title,msg){
+  var icons={success:'✅',error:'❌'};
+  var el=document.createElement('div');
+  el.className='toast '+(type==='error'?'terror':'');
+  el.innerHTML='<div class="tico">'+icons[type]+'</div><div>'
+    +'<div class="ttitle">'+title+'</div>'
+    +(msg?'<div class="tmsg">'+msg+'</div>':'')
+    +'</div>';
+  document.getElementById('twrap').appendChild(el);
+  setTimeout(function(){
+    el.classList.add('out');
+    el.addEventListener('animationend',function(){el.remove();});
+  },4500);
+}
+
+// ════════════════════════════════════════════════════════════
+// doLogin() — called by onclick on the button
+// Uses plain .then()/.catch() — works in ALL browsers
+// ════════════════════════════════════════════════════════════
+function doLogin(){
+  var email = document.getElementById('f-em').value.trim();
+  var pwd   = document.getElementById('f-pw').value;
+  var ok    = true;
+
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    document.getElementById('f-em').classList.add('err');
+    document.getElementById('e-em').classList.add('show');
+    ok = false;
+  }
+  if(!pwd){
+    document.getElementById('f-pw').classList.add('err');
+    document.getElementById('e-pw').classList.add('show');
+    ok = false;
+  }
+  if(!ok) return;
+
+  var btn = document.getElementById('signinbtn');
+  var lbl = document.getElementById('btnlbl');
+  btn.disabled = true;
+  lbl.textContent = 'Signing in…';
+
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({email: email, password: pwd})
+  })
+  .then(function(res){
+    return res.json().then(function(data){
+      if(!res.ok) throw new Error(data.message || 'Invalid email or password');
+      return data;
+    });
+  })
+  .then(function(data){
+    try{ sessionStorage.setItem('cc_user', JSON.stringify(data.data)); }catch(e){}
+    document.getElementById('vlogin').style.display = 'none';
+    document.getElementById('vsuccess').classList.add('show');
+    setTimeout(function(){
+      var role = data.data && data.data.role ? data.data.role : '';
+      window.location.href = (role === 'admin') ? '/admin' : '/events';
+    }, 1600);
+  })
+  .catch(function(err){
+    btn.disabled = false;
+    lbl.textContent = 'Sign In →';
+    showToast('error', 'Login Failed', err.message || 'Something went wrong');
+  });
+}
+
+// ── doReset ──────────────────────────────────────────────────
+function doReset(){
+  var em = document.getElementById('f-rem').value.trim();
+  if(!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){
+    document.getElementById('e-rem').classList.add('show');
+    return;
+  }
+  showToast('success','Reset link sent!','Check your email inbox.');
+  showLogin();
+}
+
+// expose for onclick attributes
+window.doLogin  = doLogin;
+window.doReset  = doReset;
+window.showLogin= showLogin;
+</script>
+</body>
+</html>

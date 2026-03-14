@@ -1,0 +1,11 @@
+{
+  "watch": ["server.js", "public/js/", "views/"],
+  "ext": "js,html,css",
+  "ignore": [
+    "data/",
+    "data/*.json",
+    "node_modules/",
+    "*.log"
+  ],
+  "delay": "500"
+}

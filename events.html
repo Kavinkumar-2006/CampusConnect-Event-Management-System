@@ -1,23 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Events</title>
-<link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events – CampusConnect</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
-
 <body>
 
-<h1>Upcoming Events</h1>
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="nav-logo-icon">🎓</div>
+      Campus<span>Connect</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/events">Events</a></li>
+    </ul>
+    <div class="nav-cta" id="navCta">
+      <!-- Injected by initNavAuth() below: shows avatar when logged in, buttons when not -->
+      <a href="/role-login" id="nav-signin-btn" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="/register"   id="nav-join-btn"   class="btn btn-primary btn-sm">Join Now</a>
+    </div>
+    <button class="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
 
-<div id="event-list"></div>
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a> <span>›</span> <span>Events</span>
+    </div>
+    <h1>All Events</h1>
+  </div>
+</div>
 
-<div id="qrcode"></div>
+<section class="section">
+  <div class="container">
+    <!-- Filter Bar -->
+    <div class="filter-bar animate-fade-up">
+      <div class="search-input-wrap">
+        <i>🔍</i>
+        <input
+          type="search"
+          id="search-input"
+          class="search-input"
+          placeholder="Search events, venues…"
+          autocomplete="off"
+        />
+      </div>
+      <div class="filter-chips">
+        <button class="chip active" data-category="all">All</button>
+        <button class="chip" data-category="technical">💻 Technical</button>
+        <button class="chip" data-category="cultural">🎭 Cultural</button>
+        <button class="chip" data-category="sports">⚽ Sports</button>
+        <button class="chip" data-category="workshop">🛠 Workshop</button>
+        <button class="chip" data-category="seminar">🎓 Seminar</button>
+      </div>
+    </div>
 
-<!-- QR Code Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <!-- Events Grid -->
+    <div class="events-grid" id="events-grid">
+      <!-- Populated by script.js → initEventsPage() -->
+    </div>
+  </div>
+</section>
 
-<!-- Your Project Script -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <p>© 2025 CampusConnect · Built by Kavinkumar P</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container"></div>
 <script src="/js/script.js"></script>
 
+<!-- ── Notification Bell (injected into nav by script.js) ── -->
+<!-- ── Profile Dropdown (injected into nav by script.js) ── -->
+<!-- ── Ticket Modal ─────────────────────────────────────── -->
+<div class="ticket-modal-overlay" id="ticket-modal">
+  <div class="ticket-card" id="ticket-card">
+    <div class="ticket-header">
+      <div class="ticket-logo">
+        <div class="ticket-logo-box">🎓</div>
+        Campus<span>Connect</span>
+      </div>
+      <div class="ticket-event-name" id="tk-event-name">Event Name</div>
+      <span class="ticket-category" id="tk-category">General</span>
+    </div>
+    <div class="ticket-tear">
+      <div class="ticket-qr">
+        <canvas id="tk-qr-canvas" width="80" height="80"></canvas>
+      </div>
+      <div class="ticket-details">
+        <div class="ticket-row"><span class="tk-label">Attendee</span><span class="tk-value" id="tk-name">—</span></div>
+        <div class="ticket-row"><span class="tk-label">Roll No.</span><span class="tk-value" id="tk-roll">—</span></div>
+        <div class="ticket-row"><span class="tk-label">Date & Time</span><span class="tk-value" id="tk-datetime">—</span></div>
+        <div class="ticket-row"><span class="tk-label">Venue</span><span class="tk-value" id="tk-venue">—</span></div>
+        <div class="ticket-row"><span class="tk-label">Ticket ID</span><span class="tk-value" id="tk-id" style="font-size:.72rem">—</span></div>
+      </div>
+    </div>
+    <div class="ticket-footer">
+      <button class="btn-close-ticket" onclick="closeTicketModal()">Close</button>
+      <button class="btn-download-ticket" onclick="downloadTicketPDF()">⬇ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Navbar auth state for events page ── */
+(function initNavAuth(){
+  var user=null;try{user=JSON.parse(sessionStorage.getItem('cc_user'));}catch(e){}
+  if(!user)return;
+  var cta=document.getElementById('navCta');if(!cta)return;
+  var dashMap={admin:'/admin',staff:'/staff-dashboard',student:'/student-dashboard'};
+  var dashUrl=dashMap[user.role]||'/student-dashboard';
+  var initials=(user.name||'U').split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+  cta.innerHTML=
+    '<a href="'+dashUrl+'" style="display:inline-flex;align-items:center;gap:.5rem;padding:.38rem .9rem;background:rgba(212,160,23,.08);border:1.5px solid rgba(212,160,23,.3);border-radius:8px;font-size:.86rem;font-weight:600;color:#d4a017">'
+    +'<span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#d4a017,#a07810);display:grid;place-items:center;font-size:.7rem;font-weight:900;color:#0a0800">'+initials+'</span>'
+    +'Dashboard</a>'
+    +'<button onclick="sessionStorage.removeItem(\'cc_user\');fetch(\'/api/auth/logout\',{method:\'POST\'});location.href=\'/\'" style="height:30px;padding:0 .8rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#f87171;font-size:.8rem;font-weight:700;cursor:pointer">Sign Out</button>';
+})();
+</script>
 </body>
 </html>

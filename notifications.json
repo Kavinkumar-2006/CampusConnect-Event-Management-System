@@ -1,0 +1,95 @@
+[
+  {
+    "id": "be3e5332-3adc-46d7-bb21-7717fa58ae8b",
+    "userId": "00000000-0000-0000-0000-000000000003",
+    "type": "welcome",
+    "title": "Welcome to CampusConnect! 🎉",
+    "message": "Your account is active. Browse and register for events.",
+    "read": true,
+    "createdAt": "2026-03-12T05:15:52.094Z"
+  },
+  {
+    "id": "7917878c-b39f-4a18-9f08-b0e4d73c4c4b",
+    "userId": "00000000-0000-0000-0000-000000000001",
+    "type": "event",
+    "title": "New Event: SPARK",
+    "message": "SPARK on 2026-03-15 at IT LAB 1. Register now!",
+    "read": false,
+    "createdAt": "2026-03-12T08:25:49.809Z",
+    "eventId": "2dd3ca36-7156-4462-8753-4e79802a9e13"
+  },
+  {
+    "id": "e90b5ba1-2ec5-4673-9876-edae9da17fd6",
+    "userId": "00000000-0000-0000-0000-000000000002",
+    "type": "event",
+    "title": "New Event: SPARK",
+    "message": "SPARK on 2026-03-15 at IT LAB 1. Register now!",
+    "read": false,
+    "createdAt": "2026-03-12T08:25:49.809Z",
+    "eventId": "2dd3ca36-7156-4462-8753-4e79802a9e13"
+  },
+  {
+    "id": "047690e3-1945-4aa1-877b-f70328ab63e8",
+    "userId": "00000000-0000-0000-0000-000000000003",
+    "type": "event",
+    "title": "New Event: SPARK",
+    "message": "SPARK on 2026-03-15 at IT LAB 1. Register now!",
+    "read": true,
+    "createdAt": "2026-03-12T08:25:49.809Z",
+    "eventId": "2dd3ca36-7156-4462-8753-4e79802a9e13"
+  },
+  {
+    "id": "8df2941b-6210-4ef2-93cb-29673634d2ae",
+    "userId": "47e87b48-d3c3-4c8d-adbd-64848b3444f5",
+    "type": "welcome",
+    "title": "Welcome to CampusConnect! 🎉",
+    "message": "Your account is active. Browse and register for events.",
+    "read": false,
+    "createdAt": "2026-03-13T10:28:46.903Z"
+  },
+  {
+    "id": "c1d457aa-5387-4da0-9550-e3ee67840dbc",
+    "userId": "00000000-0000-0000-0000-000000000002",
+    "type": "welcome",
+    "title": "Welcome to CampusConnect! 🎉",
+    "message": "Your account is active. Browse and register for events.",
+    "read": false,
+    "createdAt": "2026-03-14T10:16:20.474Z"
+  },
+  {
+    "id": "9039da33-ab3e-48cc-98e2-c7384b1fda21",
+    "userId": "00000000-0000-0000-0000-000000000001",
+    "type": "announcement",
+    "title": "📢 IMPORTANT",
+    "message": "hi , welcome to this event .",
+    "read": false,
+    "createdAt": "2026-03-14T10:18:27.837Z"
+  },
+  {
+    "id": "f39da4dc-3c73-48eb-bebb-8b27ea98ec2b",
+    "userId": "00000000-0000-0000-0000-000000000002",
+    "type": "announcement",
+    "title": "📢 IMPORTANT",
+    "message": "hi , welcome to this event .",
+    "read": false,
+    "createdAt": "2026-03-14T10:18:27.837Z"
+  },
+  {
+    "id": "4abe3747-11cf-4726-88c6-e3d99b61130b",
+    "userId": "00000000-0000-0000-0000-000000000003",
+    "type": "announcement",
+    "title": "📢 IMPORTANT",
+    "message": "hi , welcome to this event .",
+    "read": false,
+    "createdAt": "2026-03-14T10:18:27.837Z"
+  },
+  {
+    "id": "e08172f7-e7dd-43ff-8055-044fa6697ae6",
+    "userId": "47e87b48-d3c3-4c8d-adbd-64848b3444f5",
+    "type": "announcement",
+    "title": "📢 IMPORTANT",
+    "message": "hi , welcome to this event .",
+    "read": false,
+    "createdAt": "2026-03-14T10:18:27.837Z"
+  }
+]

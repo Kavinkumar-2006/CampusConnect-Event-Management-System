@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Create Account – CampusConnect</title>
+<style>
+/* ══ FULLY STANDALONE — zero external deps ══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  min-height:100%;background:#080808;color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+#bgc{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+#cg{width:600px;height:600px;position:fixed;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,.07)0%,transparent 65%);
+  transform:translate(-50%,-50%);z-index:1;}
+
+/* PAGE */
+.page{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:3rem 1.5rem;position:relative;z-index:2;
+}
+
+/* BRAND */
+.brand{display:flex;flex-direction:column;align-items:center;gap:.9rem;margin-bottom:2rem;}
+.brand-icon{
+  width:90px;height:90px;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  border-radius:20px;display:grid;place-items:center;font-size:2.8rem;
+  box-shadow:0 0 40px rgba(212,160,23,.5),0 10px 28px rgba(0,0,0,.6);
+  animation:glow 2.5s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{box-shadow:0 0 22px rgba(212,160,23,.4);}50%{box-shadow:0 0 55px rgba(212,160,23,.7),0 0 90px rgba(212,160,23,.2);}}
+.brand-name{font-size:3rem;font-weight:900;color:#f0ece0;letter-spacing:-.01em;}
+.brand-name span{color:#d4a017;}
+.brand-tag{font-size:1.1rem;color:rgba(240,236,224,.45);letter-spacing:.09em;text-transform:uppercase;}
+
+/* STEP DOTS */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:2rem;}
+.sdot{display:flex;flex-direction:column;align-items:center;gap:.4rem;}
+.sdot-circle{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.1);
+  display:grid;place-items:center;
+  font-size:1.1rem;font-weight:800;color:rgba(240,236,224,.3);
+  transition:all .3s;
+}
+.sdot.active .sdot-circle{
+  background:rgba(212,160,23,.18);border-color:#d4a017;
+  color:#d4a017;box-shadow:0 0 16px rgba(212,160,23,.35);
+}
+.sdot.done .sdot-circle{
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  border-color:#d4a017;color:#0a0800;
+  box-shadow:0 0 16px rgba(212,160,23,.4);
+}
+.sdot-lbl{font-size:.85rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(240,236,224,.3);transition:color .3s;}
+.sdot.active .sdot-lbl{color:#d4a017;}
+.sdot.done   .sdot-lbl{color:rgba(212,160,23,.6);}
+.sconn{width:70px;height:2px;background:rgba(255,255,255,.07);margin:0 .5rem;position:relative;top:-14px;transition:background .3s;}
+.sconn.done{background:linear-gradient(90deg,#d4a017,#a07810);box-shadow:0 0 8px rgba(212,160,23,.4);}
+
+/* CARD */
+.card{
+  width:100%;max-width:640px;
+  background:#0f0f0f;
+  border:2px solid rgba(212,160,23,.28);
+  border-radius:28px;
+  padding:3.5rem 4.5rem;
+  box-shadow:0 0 80px rgba(212,160,23,.1),0 30px 100px rgba(0,0,0,.7);
+  position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,#d4a017,transparent);}
+
+/* STEP PANELS */
+.step{display:none;}
+.step.active{display:block;animation:slide .3s ease both;}
+@keyframes slide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.stitle{font-size:2.6rem;font-weight:900;color:#f0ece0;margin-bottom:.4rem;letter-spacing:-.01em;}
+.ssub{font-size:1.2rem;color:rgba(240,236,224,.45);margin-bottom:2.5rem;line-height:1.5;}
+
+/* FORM */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.fg{margin-bottom:2rem;}
+.lbl{
+  display:block;font-size:1.05rem;font-weight:700;
+  color:rgba(240,236,224,.65);margin-bottom:.7rem;
+  text-transform:uppercase;letter-spacing:.07em;
+}
+.lbl .req{color:#d4a017;}
+.iw{position:relative;}
+.ico{
+  position:absolute;left:1.4rem;top:50%;transform:translateY(-50%);
+  font-size:1.5rem;pointer-events:none;opacity:.4;transition:opacity .2s;
+}
+.iw:focus-within .ico{opacity:.85;}
+
+/* INPUT */
+.inp{
+  width:100%;height:68px;
+  padding:0 1.2rem 0 4.5rem;
+  background:rgba(255,255,255,.04);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:14px;font-size:1.2rem;
+  color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.inp:focus{
+  outline:none;border-color:#d4a017;
+  box-shadow:0 0 0 4px rgba(212,160,23,.14);
+  background:rgba(212,160,23,.04);
+}
+.inp::placeholder{color:rgba(240,236,224,.18);}
+.inp.err{border-color:rgba(239,68,68,.7);box-shadow:0 0 0 4px rgba(239,68,68,.12);}
+
+/* SELECT */
+.sel{
+  width:100%;height:68px;
+  padding:0 1.2rem 0 4.5rem;
+  background:rgba(255,255,255,.04);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:14px;font-size:1.2rem;
+  color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;
+  appearance:none;cursor:pointer;
+  transition:border-color .2s,box-shadow .2s;
+}
+.sel option{background:#1a1a1a;color:#f0ece0;}
+.sel:focus{outline:none;border-color:#d4a017;box-shadow:0 0 0 4px rgba(212,160,23,.14);}
+.sel.err{border-color:rgba(239,68,68,.7);}
+.sel-arrow{
+  position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);
+  font-size:1.2rem;pointer-events:none;color:rgba(240,236,224,.4);
+}
+
+/* PASSWORD EYE */
+.eye{
+  position:absolute;right:1.2rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;font-size:1.5rem;cursor:pointer;
+  color:rgba(240,236,224,.35);transition:color .2s;
+}
+.eye:hover{color:#d4a017;}
+
+/* STRENGTH BAR */
+.strength-wrap{margin-top:.6rem;}
+.strength-bar{height:4px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-bottom:.35rem;}
+.strength-fill{height:100%;width:0;border-radius:999px;transition:width .3s,background .3s;}
+.strength-lbl{font-size:.95rem;color:rgba(240,236,224,.4);}
+
+/* ERROR TEXT */
+.ferr{font-size:1rem;color:#ef4444;margin-top:.4rem;display:none;}
+.ferr.show{display:block;}
+
+/* CHECKBOX ROW */
+.ck-row{display:flex;align-items:flex-start;gap:.9rem;margin-bottom:2rem;}
+.ck-row input[type=checkbox]{width:24px;height:24px;accent-color:#d4a017;flex-shrink:0;margin-top:.2rem;cursor:pointer;}
+.ck-row label{font-size:1.1rem;color:rgba(240,236,224,.55);line-height:1.5;cursor:pointer;}
+.ck-row label a{color:#d4a017;font-weight:700;}
+.ck-row label a:hover{color:#f5c842;text-decoration:underline;}
+
+/* BUTTON ROW */
+.btn-row{display:flex;gap:1rem;align-items:center;}
+.btn-back{
+  height:68px;padding:0 2rem;
+  background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.1);
+  border-radius:14px;font-size:1.2rem;font-weight:700;color:#f0ece0;
+  cursor:pointer;font-family:Georgia,'Times New Roman',serif;
+  transition:all .2s;white-space:nowrap;
+}
+.btn-back:hover{border-color:rgba(212,160,23,.4);color:#d4a017;}
+
+.btn-next{
+  flex:1;height:68px;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  color:#0a0800;border:none;border-radius:14px;
+  font-size:1.3rem;font-weight:900;
+  cursor:pointer;font-family:Georgia,'Times New Roman',serif;
+  letter-spacing:.04em;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-next::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+  transition:left .45s;
+}
+.btn-next:hover::before{left:140%;}
+.btn-next:hover{box-shadow:0 0 45px rgba(212,160,23,.55),0 10px 28px rgba(0,0,0,.5);transform:translateY(-2px);}
+.btn-next:active{transform:scale(.97);}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* SUCCESS */
+.success-screen{
+  display:none;text-align:center;padding:2rem 0;
+  animation:slide .4s ease;
+}
+.success-screen.show{display:block;}
+.success-ring{
+  width:120px;height:120px;border-radius:50%;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  display:grid;place-items:center;font-size:3.5rem;
+  margin:0 auto 2rem;
+  box-shadow:0 0 0 18px rgba(212,160,23,.1),0 0 0 36px rgba(212,160,23,.05);
+  animation:pop .45s ease;
+}
+@keyframes pop{0%{transform:scale(0);opacity:0;}70%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
+.success-screen h3{color:#d4a017;font-size:2.5rem;margin-bottom:.6rem;}
+.success-screen p{color:rgba(240,236,224,.45);font-size:1.2rem;}
+
+/* FOOTER */
+.pfooter{margin-top:2rem;text-align:center;font-size:1rem;color:rgba(240,236,224,.22);}
+.pfooter a{color:rgba(212,160,23,.5);}
+.pfooter a:hover{color:#d4a017;}
+
+/* TOASTS */
+.twrap{position:fixed;bottom:2rem;right:2rem;display:flex;flex-direction:column;gap:.65rem;z-index:9999;}
+.toast{
+  display:flex;align-items:flex-start;gap:.9rem;
+  min-width:320px;padding:1.2rem 1.5rem;
+  background:#111;border:2px solid rgba(212,160,23,.3);
+  border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.7);
+  animation:tin .3s ease;
+}
+.toast.terror{border-color:rgba(239,68,68,.5);}
+.toast.tsuccess{border-color:rgba(34,197,94,.4);}
+.toast.out{animation:tout .3s ease forwards;}
+.tico{font-size:1.5rem;flex-shrink:0;}
+.ttitle{font-weight:800;font-size:1.1rem;color:#f0ece0;}
+.tmsg{font-size:.95rem;color:rgba(240,236,224,.5);margin-top:3px;}
+@keyframes tin{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(24px)}}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="cg"></div>
+
+<div class="page">
+
+  <!-- BRAND -->
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <div class="brand-name">Campus<span>Connect</span></div>
+    <div class="brand-tag">Create Your Free Account</div>
+  </div>
+
+  <!-- STEP DOTS -->
+  <div class="steps">
+    <div class="sdot active" id="dot-1">
+      <div class="sdot-circle" id="dc-1">1</div>
+      <div class="sdot-lbl">Personal</div>
+    </div>
+    <div class="sconn" id="conn-1"></div>
+    <div class="sdot" id="dot-2">
+      <div class="sdot-circle" id="dc-2">2</div>
+      <div class="sdot-lbl">Academic</div>
+    </div>
+    <div class="sconn" id="conn-2"></div>
+    <div class="sdot" id="dot-3">
+      <div class="sdot-circle" id="dc-3">3</div>
+      <div class="sdot-lbl">Security</div>
+    </div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+
+    <!-- ═══ STEP 1 — Personal Info ═══ -->
+    <div class="step active" id="step-1">
+      <div class="stitle">Personal Info</div>
+      <div class="ssub">Tell us a bit about yourself.</div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">First Name <span class="req">*</span></label>
+          <div class="iw">
+            <span class="ico">👤</span>
+            <input type="text" id="f-fname" class="inp" placeholder="Kavin"/>
+          </div>
+          <div class="ferr" id="e-fname">First name is required.</div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Last Name <span class="req">*</span></label>
+          <div class="iw">
+            <span class="ico">👤</span>
+            <input type="text" id="f-lname" class="inp" placeholder="Kumar"/>
+          </div>
+          <div class="ferr" id="e-lname">Last name is required.</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Email Address <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">📧</span>
+          <input type="email" id="f-email" class="inp" placeholder="yourname@college.edu" autocomplete="email"/>
+        </div>
+        <div class="ferr" id="e-email">Enter a valid email address.</div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Phone Number <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">📱</span>
+          <input type="tel" id="f-phone" class="inp" placeholder="9876543210"/>
+        </div>
+        <div class="ferr" id="e-phone">Enter a valid 10-digit phone number.</div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-next" style="font-size:1.3rem" onclick="goNext1()">
+          Continue → 
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 2 — Academic ═══ -->
+    <div class="step" id="step-2">
+      <div class="stitle">Academic Details</div>
+      <div class="ssub">Your college information.</div>
+
+      <div class="fg">
+        <label class="lbl">Register Number <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">🎓</span>
+          <input type="text" id="f-roll" class="inp" placeholder="e.g. 22IT001"/>
+        </div>
+        <div class="ferr" id="e-roll">Register number is required.</div>
+      </div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">Department <span class="req">*</span></label>
+          <div class="iw">
+            <span class="ico">🏫</span>
+            <select id="f-dept" class="sel">
+              <option value="">Select dept</option>
+              <option>IT</option>
+              <option>CSE</option>
+              <option>ECE</option>
+              <option>EEE</option>
+              <option>MECH</option>
+              <option>CIVIL</option>
+              <option>MBA</option>
+              <option>MCA</option>
+            </select>
+            <span class="sel-arrow">▾</span>
+          </div>
+          <div class="ferr" id="e-dept">Select your department.</div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Year <span class="req">*</span></label>
+          <div class="iw">
+            <span class="ico">📅</span>
+            <select id="f-year" class="sel">
+              <option value="">Select year</option>
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+            </select>
+            <span class="sel-arrow">▾</span>
+          </div>
+          <div class="ferr" id="e-year">Select your year.</div>
+        </div>
+      </div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">Section</label>
+          <div class="iw">
+            <span class="ico">🔤</span>
+            <input type="text" id="f-section" class="inp" placeholder="A / B / C"/>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="lbl">College ID</label>
+          <div class="iw">
+            <span class="ico">🪪</span>
+            <input type="text" id="f-colid" class="inp" placeholder="Optional"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goStep(1)">← Back</button>
+        <button type="button" class="btn-next" onclick="goNext2()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 3 — Security ═══ -->
+    <div class="step" id="step-3">
+      <div class="stitle">Security</div>
+      <div class="ssub">Set a strong password to secure your account.</div>
+
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">Gender</label>
+          <div class="iw">
+            <span class="ico">🧑</span>
+            <select id="f-gender" class="sel">
+              <option value="">Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+            <span class="sel-arrow">▾</span>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Address / Hostel</label>
+          <div class="iw">
+            <span class="ico">🏠</span>
+            <input type="text" id="f-addr" class="inp" placeholder="Hostel / City"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Password <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">🔒</span>
+          <input type="password" id="f-pwd" class="inp"
+                 placeholder="Min 8 characters" style="padding-right:5rem"
+                 autocomplete="new-password"/>
+          <button type="button" class="eye" id="eye1">👁</button>
+        </div>
+        <div class="strength-wrap">
+          <div class="strength-bar"><div class="strength-fill" id="sfill"></div></div>
+          <div class="strength-lbl" id="slbl"></div>
+        </div>
+        <div class="ferr" id="e-pwd">Password must be at least 8 characters.</div>
+      </div>
+
+      <div class="fg">
+        <label class="lbl">Confirm Password <span class="req">*</span></label>
+        <div class="iw">
+          <span class="ico">🔒</span>
+          <input type="password" id="f-cpwd" class="inp"
+                 placeholder="Re-enter password" style="padding-right:5rem"
+                 autocomplete="new-password"/>
+          <button type="button" class="eye" id="eye2">👁</button>
+        </div>
+        <div class="ferr" id="e-cpwd">Passwords do not match.</div>
+      </div>
+
+      <div class="ck-row">
+        <input type="checkbox" id="f-terms"/>
+        <label for="f-terms">
+          I confirm that all information is accurate and I agree to the
+          <a href="#">Terms &amp; Conditions</a> of CampusConnect.
+        </label>
+      </div>
+      <div class="ferr" id="e-terms" style="margin-top:-.8rem;margin-bottom:1.5rem">You must accept the terms.</div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="goStep(2)">← Back</button>
+        <button type="button" class="btn-next" id="submitbtn" onclick="doRegister()">
+          <span id="submitlbl">✦ Create Account</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="vsuccess">
+      <div class="success-ring">🎉</div>
+      <h3>Account Created!</h3>
+      <p>Welcome to CampusConnect. Redirecting to sign in…</p>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="pfooter">
+    <a href="/">← Back to Home</a> &nbsp;·&nbsp; © 2025 CampusConnect
+  </div>
+</div>
+
+<div class="twrap" id="twrap"></div>
+
+<script>
+// ── Particle canvas ──────────────────────────────────────────
+(function(){
+  var c=document.getElementById('bgc'),x=c.getContext('2d');
+  function sz(){c.width=innerWidth;c.height=innerHeight;}
+  window.addEventListener('resize',sz);sz();
+  var p=[];
+  for(var i=0;i<60;i++) p.push({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,
+    r:Math.random()*1.5+.3,a:Math.random()*.28+.05
+  });
+  (function loop(){
+    x.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<p.length;i++){
+      p[i].x+=p[i].vx;p[i].y+=p[i].vy;
+      if(p[i].x<0||p[i].x>c.width)p[i].vx*=-1;
+      if(p[i].y<0||p[i].y>c.height)p[i].vy*=-1;
+      x.beginPath();x.arc(p[i].x,p[i].y,p[i].r,0,Math.PI*2);
+      x.fillStyle='rgba(212,160,23,'+p[i].a+')';x.fill();
+    }
+    for(var i=0;i<p.length;i++)for(var j=i+1;j<p.length;j++){
+      var dx=p[i].x-p[j].x,dy=p[i].y-p[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){x.beginPath();x.moveTo(p[i].x,p[i].y);x.lineTo(p[j].x,p[j].y);
+        x.strokeStyle='rgba(212,160,23,'+(0.055*(1-d/110))+')';x.lineWidth=.5;x.stroke();}
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+// ── Cursor glow ──────────────────────────────────────────────
+document.addEventListener('mousemove',function(e){
+  var el=document.getElementById('cg');
+  el.style.left=e.clientX+'px';el.style.top=e.clientY+'px';
+});
+
+// ── Toast ────────────────────────────────────────────────────
+function showToast(type,title,msg){
+  var icons={success:'✅',error:'❌'};
+  var cls=type==='error'?'terror':'tsuccess';
+  var el=document.createElement('div');
+  el.className='toast '+cls;
+  el.innerHTML='<div class="tico">'+icons[type]+'</div><div>'
+    +'<div class="ttitle">'+title+'</div>'
+    +(msg?'<div class="tmsg">'+msg+'</div>':'')
+    +'</div>';
+  document.getElementById('twrap').appendChild(el);
+  setTimeout(function(){
+    el.classList.add('out');
+    el.addEventListener('animationend',function(){el.remove();});
+  },4500);
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function gv(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
+function showErr(id,msg){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=msg;el.classList.add('show');
+}
+function clearErr(id){
+  var el=document.getElementById(id);
+  if(el)el.classList.remove('show');
+}
+function setInpErr(id,on){
+  var el=document.getElementById(id);
+  if(el)el.classList.toggle('err',on);
+}
+
+// ── Step management ──────────────────────────────────────────
+var curStep=1;
+function goStep(n){
+  document.getElementById('step-'+curStep).classList.remove('active');
+  document.getElementById('step-'+n).classList.add('active');
+  for(var i=1;i<=3;i++){
+    var dot=document.getElementById('dot-'+i);
+    var dc=document.getElementById('dc-'+i);
+    dot.classList.remove('active','done');
+    if(i<n){ dot.classList.add('done'); dc.textContent='✓'; }
+    else if(i===n){ dot.classList.add('active'); dc.textContent=i; }
+    else { dc.textContent=i; }
+  }
+  document.getElementById('conn-1').classList.toggle('done',n>1);
+  document.getElementById('conn-2').classList.toggle('done',n>2);
+  curStep=n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Step 1 validation ────────────────────────────────────────
+function goNext1(){
+  var ok=true;
+  var fname=gv('f-fname');
+  var lname=gv('f-lname');
+  var email=gv('f-email');
+  var phone=gv('f-phone').replace(/\D/g,'');
+
+  if(!fname){ showErr('e-fname','First name is required.'); setInpErr('f-fname',true); ok=false; }
+  else { clearErr('e-fname'); setInpErr('f-fname',false); }
+
+  if(!lname){ showErr('e-lname','Last name is required.'); setInpErr('f-lname',true); ok=false; }
+  else { clearErr('e-lname'); setInpErr('f-lname',false); }
+
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showErr('e-email','Enter a valid email address.'); setInpErr('f-email',true); ok=false;
+  } else { clearErr('e-email'); setInpErr('f-email',false); }
+
+  if(phone.length<10){ showErr('e-phone','Enter a valid 10-digit phone number.'); setInpErr('f-phone',true); ok=false; }
+  else { clearErr('e-phone'); setInpErr('f-phone',false); }
+
+  if(ok) goStep(2);
+}
+
+// ── Step 2 validation ────────────────────────────────────────
+function goNext2(){
+  var ok=true;
+
+  if(!gv('f-roll')){ showErr('e-roll','Register number is required.'); setInpErr('f-roll',true); ok=false; }
+  else { clearErr('e-roll'); setInpErr('f-roll',false); }
+
+  if(!gv('f-dept')){ showErr('e-dept','Select your department.'); setInpErr('f-dept',true); ok=false; }
+  else { clearErr('e-dept'); setInpErr('f-dept',false); }
+
+  if(!gv('f-year')){ showErr('e-year','Select your year.'); setInpErr('f-year',true); ok=false; }
+  else { clearErr('e-year'); setInpErr('f-year',false); }
+
+  if(ok) goStep(3);
+}
+
+// ── Password strength ────────────────────────────────────────
+document.getElementById('f-pwd').addEventListener('input',function(){
+  var pw=this.value,score=0;
+  if(pw.length>=8)score++;
+  if(/[A-Z]/.test(pw))score++;
+  if(/[0-9]/.test(pw))score++;
+  if(/[^A-Za-z0-9]/.test(pw))score++;
+  var fill=document.getElementById('sfill');
+  var lbl=document.getElementById('slbl');
+  var cols=['','#ef4444','#f59e0b','#22c55e','#d4a017'];
+  var lbls=['','Weak','Fair','Good','Strong 🔐'];
+  fill.style.width=(score*25)+'%';
+  fill.style.background=pw?cols[score]:'';
+  lbl.textContent=pw?(lbls[score]||''):'';
+  lbl.style.color=pw?cols[score]:'';
+});
+
+// ── Eye toggles ──────────────────────────────────────────────
+document.getElementById('eye1').addEventListener('click',function(){
+  var i=document.getElementById('f-pwd');
+  var s=i.type==='password';i.type=s?'text':'password';this.textContent=s?'🙈':'👁';
+});
+document.getElementById('eye2').addEventListener('click',function(){
+  var i=document.getElementById('f-cpwd');
+  var s=i.type==='password';i.type=s?'text':'password';this.textContent=s?'🙈':'👁';
+});
+
+// ════════════════════════════════════════════════════════════
+// doRegister() — THE SUBMIT FUNCTION
+// Sends name = firstName + lastName  (matches server expectation)
+// Uses .then()/.catch() — no async/await
+// ════════════════════════════════════════════════════════════
+function doRegister(){
+  var pwd  = document.getElementById('f-pwd').value;
+  var cpwd = document.getElementById('f-cpwd').value;
+  var terms= document.getElementById('f-terms').checked;
+  var ok   = true;
+
+  if(!pwd||pwd.length<8){
+    showErr('e-pwd','Password must be at least 8 characters.');
+    setInpErr('f-pwd',true); ok=false;
+  } else { clearErr('e-pwd'); setInpErr('f-pwd',false); }
+
+  if(pwd!==cpwd){
+    showErr('e-cpwd','Passwords do not match.');
+    setInpErr('f-cpwd',true); ok=false;
+  } else { clearErr('e-cpwd'); setInpErr('f-cpwd',false); }
+
+  if(!terms){
+    showErr('e-terms','You must accept the terms.');
+    ok=false;
+  } else { clearErr('e-terms'); }
+
+  if(!ok) return;
+
+  // loading state
+  var btn=document.getElementById('submitbtn');
+  var lbl=document.getElementById('submitlbl');
+  btn.disabled=true; lbl.textContent='Creating account…';
+
+  // Build payload — name = firstName + ' ' + lastName (matches server)
+  var firstName = gv('f-fname');
+  var lastName  = gv('f-lname');
+  var payload = {
+    name:       firstName + ' ' + lastName,   // ← server expects "name"
+    email:      gv('f-email'),
+    password:   pwd,
+    rollNumber: gv('f-roll'),                  // ← server expects "rollNumber"
+    department: gv('f-dept'),
+    year:       gv('f-year'),
+    phone:      gv('f-phone'),
+    section:    gv('f-section'),
+    collegeId:  gv('f-colid'),
+    gender:     gv('f-gender'),
+    address:    gv('f-addr')
+  };
+
+  console.log('Sending registration payload:', payload); // debug
+
+  fetch('/api/auth/register',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(function(res){
+    return res.json().then(function(data){
+      if(!res.ok) throw new Error(data.message||'Registration failed');
+      return data;
+    });
+  })
+  .then(function(data){
+    // hide all steps, show success
+    document.getElementById('step-3').style.display='none';
+    document.getElementById('vsuccess').classList.add('show');
+    setTimeout(function(){ window.location.href='/login'; }, 2000);
+  })
+  .catch(function(err){
+    btn.disabled=false; lbl.textContent='✦ Create Account';
+    showToast('error','Registration Failed', err.message||'Something went wrong');
+  });
+}
+
+// expose all onclick functions
+window.goStep    = goStep;
+window.goNext1   = goNext1;
+window.goNext2   = goNext2;
+window.doRegister= doRegister;
+</script>
+</body>
+</html>

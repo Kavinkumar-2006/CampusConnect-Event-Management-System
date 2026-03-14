@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Profile – CampusConnect</title>
+<style>
+/* ══ RESET ══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:#080808;color:#f0ece0;
+  font-family:Georgia,'Times New Roman',serif;-webkit-font-smoothing:antialiased;}
+a{color:inherit;text-decoration:none;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:#a07810;border-radius:3px;}
+
+/* ══ NAVBAR ══ */
+.nav{
+  position:fixed;top:0;left:0;right:0;height:72px;z-index:100;
+  background:rgba(8,8,8,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(212,160,23,.18);
+  display:flex;align-items:center;padding:0 2.5rem;gap:2rem;
+}
+.nav-logo{display:flex;align-items:center;gap:.75rem;font-size:1.35rem;font-weight:900;}
+.nav-logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#d4a017,#a07810);
+  border-radius:9px;display:grid;place-items:center;font-size:1.2rem;}
+.nav-logo span{color:#d4a017;}
+.nav-links{display:flex;gap:2rem;margin-left:2rem;}
+.nav-links a{font-size:.95rem;color:rgba(240,236,224,.55);transition:color .2s;}
+.nav-links a:hover{color:#d4a017;}
+.nav-spacer{flex:1;}
+.nav-user{display:flex;align-items:center;gap:.75rem;position:relative;}
+.nav-avatar{
+  width:42px;height:42px;border-radius:50%;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  display:grid;place-items:center;font-size:1.1rem;font-weight:900;
+  cursor:pointer;border:2px solid rgba(212,160,23,.4);
+  box-shadow:0 0 16px rgba(212,160,23,.3);transition:box-shadow .2s;
+  color:#0a0800;
+}
+.nav-avatar:hover{box-shadow:0 0 28px rgba(212,160,23,.6);}
+.nav-name{font-size:.9rem;color:rgba(240,236,224,.65);}
+
+/* Dropdown */
+.dropdown{
+  position:absolute;top:calc(100% + .75rem);right:0;width:220px;
+  background:#111;border:1.5px solid rgba(212,160,23,.28);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  display:none;animation:ddIn .2s ease;
+}
+.dropdown.open{display:block;}
+@keyframes ddIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.dd-header{padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.06);}
+.dd-email{font-size:.8rem;color:rgba(240,236,224,.4);margin-top:.15rem;}
+.dd-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.85rem 1.2rem;font-size:.92rem;color:rgba(240,236,224,.7);
+  cursor:pointer;transition:background .15s,color .15s;border:none;
+  background:none;width:100%;text-align:left;font-family:Georgia,serif;
+}
+.dd-item:hover{background:rgba(212,160,23,.08);color:#d4a017;}
+.dd-item.logout{color:rgba(239,68,68,.7);}
+.dd-item.logout:hover{background:rgba(239,68,68,.08);color:#ef4444;}
+.dd-divider{height:1px;background:rgba(255,255,255,.06);}
+
+/* ══ BACKGROUND ══ */
+#bgc{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+
+/* ══ PAGE ══ */
+.page{padding:72px 0 4rem;position:relative;z-index:1;}
+
+/* ══ COVER BANNER ══ */
+.cover{
+  height:220px;
+  background:linear-gradient(135deg,#0d0b00 0%,#1a1200 40%,#0d0800 70%,#080808 100%);
+  position:relative;overflow:hidden;
+}
+.cover::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(212,160,23,.015) 40px,rgba(212,160,23,.015) 41px);
+}
+.cover-glow{
+  position:absolute;top:-60px;left:50%;transform:translateX(-50%);
+  width:600px;height:300px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(212,160,23,.12) 0%,transparent 70%);
+}
+
+/* ══ PROFILE HEADER ══ */
+.profile-header{
+  max-width:1200px;margin:0 auto;padding:0 2.5rem;
+  display:flex;align-items:flex-end;gap:2rem;
+  transform:translateY(-50px);
+}
+.avatar-big{
+  width:110px;height:110px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  display:grid;place-items:center;font-size:3rem;font-weight:900;color:#0a0800;
+  border:4px solid #080808;
+  box-shadow:0 0 0 3px rgba(212,160,23,.4),0 0 40px rgba(212,160,23,.3);
+}
+.profile-meta{flex:1;padding-bottom:.5rem;}
+.profile-name{font-size:2.2rem;font-weight:900;color:#f0ece0;line-height:1;}
+.profile-role{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:rgba(212,160,23,.12);border:1px solid rgba(212,160,23,.3);
+  color:#d4a017;font-size:.78rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:.25rem .75rem;border-radius:999px;margin-top:.5rem;
+}
+.profile-sub{font-size:.9rem;color:rgba(240,236,224,.45);margin-top:.35rem;}
+.edit-btn{
+  height:42px;padding:0 1.4rem;
+  background:rgba(212,160,23,.1);border:1.5px solid rgba(212,160,23,.35);
+  border-radius:10px;color:#d4a017;font-size:.9rem;font-weight:700;
+  cursor:pointer;font-family:Georgia,serif;transition:all .2s;
+  display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;
+}
+.edit-btn:hover{background:rgba(212,160,23,.2);border-color:#d4a017;}
+
+/* ══ MAIN LAYOUT ══ */
+.main{max-width:1200px;margin:0 auto;padding:0 2.5rem;margin-top:-20px;}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:2rem;}
+
+/* ══ CARD ══ */
+.card{
+  background:#0f0f0f;border:1.5px solid rgba(212,160,23,.18);
+  border-radius:20px;overflow:hidden;margin-bottom:2rem;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+.card-head{
+  padding:1.2rem 1.6rem;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:.65rem;
+}
+.card-head-icon{font-size:1.1rem;}
+.card-head h3{font-size:1rem;font-weight:800;color:#f0ece0;letter-spacing:.03em;text-transform:uppercase;}
+.card-body{padding:1.6rem;}
+
+/* Info rows */
+.info-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.info-row:last-child{border:none;}
+.info-label{font-size:.8rem;color:rgba(240,236,224,.38);font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;}
+.info-value{font-size:.95rem;color:#f0ece0;font-weight:600;text-align:right;max-width:60%;}
+.info-value.empty{color:rgba(240,236,224,.25);font-style:italic;}
+
+/* Edit fields */
+.info-input{
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(212,160,23,.25);
+  border-radius:8px;padding:.4rem .75rem;font-size:.92rem;color:#f0ece0;
+  font-family:Georgia,serif;width:60%;text-align:right;display:none;
+}
+.info-input:focus{outline:none;border-color:#d4a017;box-shadow:0 0 0 3px rgba(212,160,23,.12);}
+.editing .info-value{display:none;}
+.editing .info-input{display:block;}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.stat-card{
+  background:rgba(212,160,23,.06);border:1.5px solid rgba(212,160,23,.15);
+  border-radius:14px;padding:1.2rem 1.1rem;text-align:center;
+  transition:border-color .2s,background .2s;
+}
+.stat-card:hover{border-color:rgba(212,160,23,.35);background:rgba(212,160,23,.1);}
+.stat-num{font-size:2.4rem;font-weight:900;color:#d4a017;line-height:1;}
+.stat-lbl{font-size:.72rem;font-weight:700;color:rgba(240,236,224,.38);
+  text-transform:uppercase;letter-spacing:.07em;margin-top:.35rem;}
+
+/* Progress bar */
+.prog-wrap{margin-top:1.2rem;}
+.prog-label{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.5rem;}
+.prog-label span:first-child{color:rgba(240,236,224,.45);}
+.prog-label span:last-child{color:#d4a017;font-weight:700;}
+.prog-bar{height:8px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#d4a017,#f5c842);
+  border-radius:999px;transition:width 1s ease;width:0;}
+
+/* ══ EVENTS TABLE ══ */
+.ev-list{display:flex;flex-direction:column;gap:.8rem;}
+.ev-item{
+  display:grid;grid-template-columns:1fr auto;align-items:center;
+  gap:1rem;padding:1rem 1.2rem;
+  background:rgba(255,255,255,.02);border:1.5px solid rgba(255,255,255,.05);
+  border-radius:14px;transition:border-color .2s,background .2s;
+}
+.ev-item:hover{border-color:rgba(212,160,23,.25);background:rgba(212,160,23,.04);}
+.ev-name{font-size:.98rem;font-weight:700;color:#f0ece0;margin-bottom:.25rem;}
+.ev-meta{font-size:.8rem;color:rgba(240,236,224,.4);display:flex;gap:1rem;flex-wrap:wrap;}
+.ev-meta span{display:flex;align-items:center;gap:.3rem;}
+.badge{
+  font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  padding:.25rem .7rem;border-radius:999px;white-space:nowrap;
+}
+.badge.upcoming{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80;}
+.badge.completed{background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.25);color:#d4a017;}
+
+.empty-state{
+  text-align:center;padding:3rem 1rem;color:rgba(240,236,224,.25);
+}
+.empty-state .icon{font-size:3rem;margin-bottom:.75rem;}
+.empty-state p{font-size:.95rem;}
+
+/* ══ SAVE BAR ══ */
+.save-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:#0f0f0f;border-top:1.5px solid rgba(212,160,23,.25);
+  padding:1rem 2.5rem;display:none;justify-content:flex-end;gap:1rem;align-items:center;
+}
+.save-bar.visible{display:flex;}
+.btn-cancel{
+  height:42px;padding:0 1.4rem;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.1);border-radius:10px;
+  color:rgba(240,236,224,.6);font-size:.9rem;font-weight:700;
+  cursor:pointer;font-family:Georgia,serif;transition:all .2s;
+}
+.btn-cancel:hover{border-color:rgba(255,255,255,.2);color:#f0ece0;}
+.btn-save{
+  height:42px;padding:0 1.8rem;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  color:#0a0800;border:none;border-radius:10px;
+  font-size:.9rem;font-weight:900;cursor:pointer;font-family:Georgia,serif;
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-save:hover{box-shadow:0 0 24px rgba(212,160,23,.5);transform:translateY(-1px);}
+
+/* ══ TOAST ══ */
+.twrap{position:fixed;bottom:5rem;right:2rem;display:flex;flex-direction:column;gap:.65rem;z-index:9999;}
+.toast{
+  display:flex;align-items:flex-start;gap:.9rem;
+  min-width:280px;padding:1rem 1.2rem;background:#111;
+  border:1.5px solid rgba(212,160,23,.3);border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);animation:tin .3s ease;font-size:.9rem;
+}
+.toast.terror{border-color:rgba(239,68,68,.4);}
+.toast.out{animation:tout .3s ease forwards;}
+@keyframes tin{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(20px)}}
+
+/* ══ NOT LOGGED IN ══ */
+.not-logged{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:2rem;
+}
+.not-logged h2{font-size:2rem;color:#d4a017;margin-bottom:.5rem;}
+.not-logged p{color:rgba(240,236,224,.45);margin-bottom:2rem;}
+.btn-login{
+  height:52px;padding:0 2.5rem;
+  background:linear-gradient(135deg,#d4a017,#a07810);
+  color:#0a0800;border:none;border-radius:12px;
+  font-size:1rem;font-weight:900;cursor:pointer;font-family:Georgia,serif;
+}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr;}
+  .profile-header{flex-direction:column;align-items:flex-start;transform:translateY(-30px);}
+  .main{padding:0 1rem;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🎓</div>
+    Campus<span>Connect</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/events">Events</a>
+    <a id="nav-dash-link" href="#" style="display:none;color:#d4a017;font-weight:700">← Dashboard</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-user" id="nav-user">
+    <span class="nav-name" id="nav-name"></span>
+    <div class="nav-avatar" id="nav-avatar" onclick="toggleDropdown()"></div>
+    <div class="dropdown" id="dropdown">
+      <div class="dd-header">
+        <div style="font-weight:800;color:#f0ece0" id="dd-name"></div>
+        <div class="dd-email" id="dd-email"></div>
+      </div>
+      <button class="dd-item" onclick="window.location.href='/profile'">👤 My Profile</button>
+      <button class="dd-item" id="dd-dashboard-btn" onclick="goToDashboard()">🏠 My Dashboard</button>
+      <button class="dd-item" onclick="scrollToRegistrations()">📋 My Registrations</button>
+      <button class="dd-item" onclick="startEdit()">⚙️ Settings</button>
+      <div class="dd-divider"></div>
+      <button class="dd-item logout" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page" id="page">
+
+  <!-- not-logged fallback -->
+  <div class="not-logged" id="not-logged" style="display:none">
+    <div style="font-size:4rem;margin-bottom:1rem">🔒</div>
+    <h2>Sign in to view your profile</h2>
+    <p>You need to be logged in to access your profile dashboard.</p>
+    <button class="btn-login" onclick="window.location.href='/role-login'">Sign In →</button>
+  </div>
+
+  <!-- real profile content -->
+  <div id="profile-content" style="display:none">
+
+    <!-- Cover -->
+    <div class="cover">
+      <div class="cover-glow"></div>
+    </div>
+
+    <!-- Profile header -->
+    <div class="profile-header">
+      <div class="avatar-big" id="avatar-big">?</div>
+      <div class="profile-meta">
+        <div class="profile-name" id="p-name">Loading…</div>
+        <div class="profile-role">🎓 Student</div>
+        <div class="profile-sub" id="p-sub"></div>
+      </div>
+      <button class="edit-btn" id="edit-toggle-btn" onclick="startEdit()">✏️ Edit Profile</button>
+    </div>
+
+    <!-- Main grid -->
+    <div class="main">
+      <div class="grid">
+
+        <!-- LEFT column -->
+        <div>
+
+          <!-- User Info Card -->
+          <div class="card">
+            <div class="card-head">
+              <span class="card-head-icon">👤</span>
+              <h3>User Information</h3>
+            </div>
+            <div class="card-body" id="info-body">
+              <!-- rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Stats Card -->
+          <div class="card">
+            <div class="card-head">
+              <span class="card-head-icon">📊</span>
+              <h3>Activity Stats</h3>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid" id="stats-grid">
+                <!-- rendered by JS -->
+              </div>
+              <div class="prog-wrap">
+                <div class="prog-label">
+                  <span>Event Participation Progress</span>
+                  <span id="prog-pct">0%</span>
+                </div>
+                <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT column — Registrations -->
+        <div>
+          <div class="card" id="regs-card">
+            <div class="card-head">
+              <span class="card-head-icon">📋</span>
+              <h3>My Registered Events</h3>
+            </div>
+            <div class="card-body">
+              <div class="ev-list" id="ev-list">
+                <!-- rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /profile-content -->
+
+</div><!-- /page -->
+
+<!-- Save bar (edit mode) -->
+<div class="save-bar" id="save-bar">
+  <span style="font-size:.9rem;color:rgba(240,236,224,.45);flex:1">Edit mode — make your changes above</span>
+  <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+  <button class="btn-save"   onclick="saveProfile()">Save Changes</button>
+</div>
+
+<div class="twrap" id="twrap"></div>
+
+<script>
+// ── Particle canvas ──────────────────────────────────────────
+(function(){
+  var c=document.getElementById('bgc'),x=c.getContext('2d');
+  function sz(){c.width=innerWidth;c.height=innerHeight;}
+  window.addEventListener('resize',sz);sz();
+  var p=[];for(var i=0;i<50;i++)p.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.2+.3,a:Math.random()*.2+.04});
+  (function loop(){x.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<p.length;i++){p[i].x+=p[i].vx;p[i].y+=p[i].vy;
+      if(p[i].x<0||p[i].x>c.width)p[i].vx*=-1;if(p[i].y<0||p[i].y>c.height)p[i].vy*=-1;
+      x.beginPath();x.arc(p[i].x,p[i].y,p[i].r,0,Math.PI*2);
+      x.fillStyle='rgba(212,160,23,'+p[i].a+')';x.fill();}
+    requestAnimationFrame(loop);})();
+})();
+
+// ── Toast ────────────────────────────────────────────────────
+function toast(type,msg){
+  var el=document.createElement('div');
+  el.className='toast '+(type==='error'?'terror':'');
+  el.innerHTML=(type==='error'?'❌ ':'✅ ')+msg;
+  document.getElementById('twrap').appendChild(el);
+  setTimeout(function(){el.classList.add('out');el.addEventListener('animationend',function(){el.remove();});},4000);
+}
+
+// ── Dropdown ─────────────────────────────────────────────────
+function toggleDropdown(){
+  document.getElementById('dropdown').classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!document.getElementById('nav-user').contains(e.target))
+    document.getElementById('dropdown').classList.remove('open');
+});
+function scrollToRegistrations(){
+  document.getElementById('dropdown').classList.remove('open');
+  document.getElementById('regs-card').scrollIntoView({behavior:'smooth'});
+}
+
+// ── Dashboard helper ─────────────────────────────────────────
+function goToDashboard(){
+  var u = null;
+  try{ u = JSON.parse(sessionStorage.getItem('cc_user')); }catch(e){}
+  var map = {admin:'/admin', staff:'/staff-dashboard', student:'/student-dashboard'};
+  window.location.href = u ? (map[u.role]||'/student-dashboard') : '/role-login';
+}
+
+// ── Auth check ───────────────────────────────────────────────
+var currentUser = null;
+try{ currentUser = JSON.parse(sessionStorage.getItem('cc_user')); }catch(e){}
+
+if(!currentUser){
+  document.getElementById('not-logged').style.display='flex';
+} else {
+  document.getElementById('profile-content').style.display='block';
+  // navbar avatar
+  var initials = (currentUser.name||'?').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-name').textContent   = (currentUser.name||'').split(' ')[0];
+  document.getElementById('dd-name').textContent    = currentUser.name||'';
+  document.getElementById('dd-email').textContent   = currentUser.email||'';
+  // Show role chip on avatar
+  var roleMap = {admin:'🛡️ Admin',staff:'👨‍🏫 Staff',student:'🎓 Student'};
+  // Wire up back-to-dashboard link
+  var dashMap = {admin:'/admin',staff:'/staff-dashboard',student:'/student-dashboard'};
+  var dashLink = document.getElementById('nav-dash-link');
+  if(dashLink && currentUser.role && dashMap[currentUser.role]){
+    dashLink.href = dashMap[currentUser.role];
+    dashLink.style.display = 'inline';
+    dashLink.textContent = '← ' + (currentUser.role==='admin'?'Admin':currentUser.role==='staff'?'Staff':'Student') + ' Dashboard';
+  }
+  loadProfile(currentUser.email);
+}
+
+// ── Load profile from API ────────────────────────────────────
+var profileData = null;
+
+function loadProfile(email){
+  fetch('/api/profile/' + encodeURIComponent(email))
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.success){ toast('error','Could not load profile'); return; }
+    profileData = d.data;
+    renderProfile(d.data);
+  })
+  .catch(function(){ toast('error','Server error loading profile'); });
+}
+
+function renderProfile(data){
+  var u = data.user;
+  var s = data.stats;
+
+  // Header
+  var initials=(u.name||'?').split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+  document.getElementById('avatar-big').textContent = initials;
+  document.getElementById('p-name').textContent = u.name || '—';
+  document.getElementById('p-sub').textContent  = (u.department||'') + (u.year ? ' • ' + u.year : '') + (u.rollNumber ? ' • ' + u.rollNumber : '');
+
+  // Info rows
+  var fields = [
+    {label:'Full Name',    key:'name',       icon:'👤'},
+    {label:'Email',        key:'email',       icon:'📧'},
+    {label:'Phone',        key:'phone',       icon:'📱'},
+    {label:'Register No.', key:'rollNumber',  icon:'🎓'},
+    {label:'Department',   key:'department',  icon:'🏫'},
+    {label:'Year',         key:'year',        icon:'📅'},
+    {label:'Section',      key:'section',     icon:'🔤'},
+    {label:'Gender',       key:'gender',      icon:'🧑'},
+    {label:'Address',      key:'address',     icon:'🏠'},
+  ];
+  var infoHtml = '';
+  fields.forEach(function(f){
+    var val = u[f.key] || '';
+    var isEmpty = !val;
+    infoHtml += '<div class="info-row" data-key="'+f.key+'">'
+      +'<span class="info-label">'+f.icon+' '+f.label+'</span>'
+      +'<span class="info-value'+(isEmpty?' empty':'')+'">'+(val||'Not set')+'</span>'
+      +'<input class="info-input" value="'+escHtml(val)+'" placeholder="'+f.label+'" />'
+      +'</div>';
+  });
+  document.getElementById('info-body').innerHTML = infoHtml;
+
+  // Stats
+  var statsArr = [
+    {num: s.totalRegistered, lbl:'Events Registered'},
+    {num: s.activeDays,      lbl:'Days on Platform'},
+    {num: s.upcoming,        lbl:'Upcoming Events'},
+    {num: s.completed,       lbl:'Completed Events'}
+  ];
+  var statsHtml = '';
+  statsArr.forEach(function(st){
+    statsHtml += '<div class="stat-card"><div class="stat-num">'+st.num+'</div><div class="stat-lbl">'+st.lbl+'</div></div>';
+  });
+  document.getElementById('stats-grid').innerHTML = statsHtml;
+
+  // Progress
+  document.getElementById('prog-pct').textContent = s.progress + '%';
+  setTimeout(function(){document.getElementById('prog-fill').style.width = s.progress + '%';}, 100);
+
+  // Registered events
+  renderEvents(data.registrations);
+}
+
+function renderEvents(regs){
+  var html = '';
+  if(!regs || regs.length === 0){
+    html = '<div class="empty-state"><div class="icon">📭</div><p>No events registered yet.<br><a href="/events" style="color:#d4a017">Browse Events →</a></p></div>';
+  } else {
+    regs.forEach(function(ev){
+      var dateStr = ev.date ? new Date(ev.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      html += '<div class="ev-item">'
+        +'<div>'
+        +'<div class="ev-name">'+escHtml(ev.eventName)+'</div>'
+        +'<div class="ev-meta">'
+        +'<span>📅 '+dateStr+'</span>'
+        +(ev.venue?'<span>📍 '+escHtml(ev.venue)+'</span>':'')
+        +(ev.category?'<span>🏷 '+ev.category+'</span>':'')
+        +'</div>'
+        +'</div>'
+        +'<span class="badge '+ev.status+'">'+ev.status+'</span>'
+        +'</div>';
+    });
+  }
+  document.getElementById('ev-list').innerHTML = html;
+}
+
+// ── Edit mode ────────────────────────────────────────────────
+var editMode = false;
+
+function startEdit(){
+  document.getElementById('dropdown').classList.remove('open');
+  editMode = true;
+  document.querySelectorAll('.info-row').forEach(function(row){
+    row.classList.add('editing');
+  });
+  document.getElementById('save-bar').classList.add('visible');
+  document.getElementById('edit-toggle-btn').textContent = '✕ Cancel Edit';
+  document.getElementById('edit-toggle-btn').onclick = cancelEdit;
+}
+
+function cancelEdit(){
+  editMode = false;
+  document.querySelectorAll('.info-row').forEach(function(row){
+    row.classList.remove('editing');
+  });
+  document.getElementById('save-bar').classList.remove('visible');
+  document.getElementById('edit-toggle-btn').textContent = '✏️ Edit Profile';
+  document.getElementById('edit-toggle-btn').onclick = startEdit;
+}
+
+function saveProfile(){
+  if(!currentUser) return;
+  var payload = {};
+  document.querySelectorAll('.info-row').forEach(function(row){
+    var key = row.dataset.key;
+    var inp = row.querySelector('.info-input');
+    if(key && inp) payload[key] = inp.value.trim();
+  });
+
+  fetch('/api/profile/' + encodeURIComponent(currentUser.email), {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.success){
+      // update sessionStorage
+      var stored = JSON.parse(sessionStorage.getItem('cc_user')||'{}');
+      Object.assign(stored, payload);
+      sessionStorage.setItem('cc_user', JSON.stringify(stored));
+      currentUser = stored;
+      toast('success','Profile updated!');
+      cancelEdit();
+      loadProfile(currentUser.email);
+    } else {
+      toast('error', d.message||'Update failed');
+    }
+  })
+  .catch(function(){ toast('error','Server error'); });
+}
+
+// ── Logout ───────────────────────────────────────────────────
+function doLogout(){
+  // Clear client session
+  sessionStorage.removeItem('cc_user');
+  // Also destroy server-side session
+  fetch('/api/auth/logout', {method:'POST'}).catch(function(){});
+  window.location.href = '/role-login';
+}
+
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

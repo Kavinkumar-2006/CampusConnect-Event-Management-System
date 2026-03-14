@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Student Dashboard – CampusConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#d4a017;--gd:#a07810;--g2:#f5c842;--glow:rgba(212,160,23,.32);
+  --bg:#080808;--bg2:#0d0d0d;--bg3:#111;--bg4:#161616;
+  --tx:#f0ece0;--txm:rgba(240,236,224,.55);--txd:rgba(240,236,224,.28);
+  --bd:rgba(255,255,255,.07);--bdg:rgba(212,160,23,.22);
+  --nav-h:62px;--sb-w:248px;--ff:'DM Sans',system-ui,sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--tx);font-family:var(--ff);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-thumb{background:rgba(212,160,23,.2);border-radius:2px;}
+
+/* NAV */
+.nav{height:var(--nav-h);background:rgba(8,8,8,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdg);position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;padding:0 1.75rem;gap:1rem;}
+.nav-brand{display:flex;align-items:center;gap:.7rem;font-size:1.1rem;font-weight:700;color:var(--tx);width:var(--sb-w);flex-shrink:0;}
+.nav-brand span{color:var(--g);}
+.n-ico{width:33px;height:33px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:9px;display:grid;place-items:center;font-size:.9rem;box-shadow:0 0 14px var(--glow);}
+.role-chip{display:inline-flex;align-items:center;gap:.45rem;padding:.3rem .85rem;background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:999px;font-size:.76rem;font-weight:700;color:var(--g);}
+.nav-r{display:flex;align-items:center;gap:.65rem;margin-left:auto;}
+
+/* Notification */
+.nd-wrap{position:relative;}
+.n-bell{width:33px;height:33px;border-radius:50%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);display:grid;place-items:center;font-size:.88rem;cursor:pointer;transition:border-color .2s;position:relative;}
+.n-bell:hover{border-color:var(--bdg);}
+.bell-dot{position:absolute;top:-3px;right:-3px;width:15px;height:15px;background:#ef4444;border-radius:50%;border:2px solid var(--bg);font-size:.58rem;font-weight:900;color:#fff;display:none;place-items:center;}
+.bell-dot.on{display:grid;}
+.nd-drop{display:none;position:absolute;top:calc(100% + .6rem);right:0;width:295px;max-height:360px;background:var(--bg3);border:1.5px solid var(--bdg);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.75);z-index:400;overflow:hidden;flex-direction:column;}
+.nd-drop.on{display:flex;}
+.nd-hd{padding:.72rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.nd-hd h4{font-size:.82rem;font-weight:800;color:var(--tx);}
+.nd-mark{font-size:.72rem;color:var(--g);background:none;border:none;cursor:pointer;font-family:var(--ff);}
+.nd-list{overflow-y:auto;flex:1;}
+.nd-item{display:flex;align-items:flex-start;gap:.6rem;padding:.72rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s;}
+.nd-item:hover{background:rgba(212,160,23,.05);}
+.nd-item.unr{background:rgba(212,160,23,.03);}
+.nd-dot{width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0;margin-top:.28rem;opacity:0;}
+.nd-item.unr .nd-dot{opacity:1;}
+.nd-t{font-size:.8rem;font-weight:700;color:var(--tx);line-height:1.3;}
+.nd-m{font-size:.72rem;color:var(--txm);margin-top:.1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nd-tm{font-size:.66rem;color:var(--txd);margin-top:.16rem;}
+.nd-empty{text-align:center;padding:2rem;color:var(--txd);font-size:.82rem;}
+.nav-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--gd));display:grid;place-items:center;font-size:.8rem;font-weight:900;color:#0a0800;border:2px solid rgba(212,160,23,.4);}
+.nav-uname{font-size:.82rem;color:var(--txm);white-space:nowrap;}
+.btn-lo{height:31px;padding:0 .9rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#f87171;font-size:.8rem;font-weight:700;cursor:pointer;font-family:var(--ff);}
+.btn-lo:hover{background:rgba(239,68,68,.18);}
+
+/* SHELL */
+.shell{display:grid;grid-template-columns:var(--sb-w) 1fr;min-height:calc(100vh - var(--nav-h));}
+
+/* SIDEBAR */
+.sb{background:var(--bg2);border-right:1px solid var(--bdg);position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;padding:1.4rem .82rem;display:flex;flex-direction:column;gap:.08rem;}
+.sb-sec{font-size:.62rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:rgba(212,160,23,.42);padding:1rem .7rem .32rem;}
+.sbi{display:flex;align-items:center;gap:.7rem;padding:.62rem .8rem;border-radius:10px;color:rgba(240,236,224,.4);font-size:.87rem;font-weight:500;cursor:pointer;border:1px solid transparent;background:none;width:100%;text-align:left;transition:all .2s;font-family:var(--ff);}
+.sbi-ico{width:27px;height:27px;border-radius:7px;background:rgba(255,255,255,.04);display:grid;place-items:center;font-size:.8rem;flex-shrink:0;transition:all .2s;}
+.sbi:hover{color:var(--tx);background:rgba(255,255,255,.04);}
+.sbi.on{color:var(--g);font-weight:700;background:rgba(212,160,23,.08);border-color:var(--bdg);box-shadow:inset 3px 0 0 var(--g);}
+.sbi.on .sbi-ico{background:rgba(212,160,23,.14);}
+
+/* MAIN */
+.main{background:var(--bg);padding:2.1rem 2.4rem;min-width:0;}
+.sec{display:none;}.sec.on{display:block;}
+
+/* Page header */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.85rem;padding-bottom:1.35rem;border-bottom:1px solid rgba(212,160,23,.1);}
+.ph-h1{font-size:1.75rem;font-weight:900;color:var(--tx);margin-bottom:.22rem;}
+.ph-h1 span{color:var(--g);}
+.ph-sub{font-size:.83rem;color:var(--txd);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.85rem;}
+.scard{background:var(--bg3);border:1px solid var(--bdg);border-radius:13px;padding:1.25rem 1.3rem;display:flex;align-items:center;gap:.9rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .3s;}
+.scard:hover{transform:translateY(-2px);box-shadow:0 0 24px rgba(212,160,23,.1);}
+.scard:hover::before{opacity:1;}
+.sc-ico{width:45px;height:45px;border-radius:11px;display:grid;place-items:center;font-size:1.2rem;flex-shrink:0;}
+.ico-g{background:rgba(212,160,23,.12);}
+.ico-b{background:rgba(59,130,246,.1);}
+.ico-gr{background:rgba(34,197,94,.1);}
+.ico-r{background:rgba(239,68,68,.1);}
+.sc-val{font-size:1.65rem;font-weight:900;color:var(--g);line-height:1;text-shadow:0 0 18px rgba(212,160,23,.25);}
+.sc-lbl{font-size:.73rem;color:var(--txd);margin-top:.2rem;text-transform:uppercase;letter-spacing:.07em;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.4rem;flex-wrap:wrap;}
+.search-inp{flex:1;min-width:200px;height:40px;padding:0 1rem;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:var(--tx);font-size:.88rem;font-family:var(--ff);}
+.search-inp:focus{outline:none;border-color:var(--g);}
+.search-inp::placeholder{color:rgba(240,236,224,.2);}
+.chip{padding:.35rem .9rem;border-radius:999px;border:1.5px solid rgba(255,255,255,.08);background:none;color:var(--txm);font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--ff);transition:all .2s;white-space:nowrap;}
+.chip:hover{border-color:rgba(212,160,23,.3);color:var(--g);}
+.chip.on{background:rgba(212,160,23,.1);border-color:var(--g);color:var(--g);}
+
+/* EVENT CARDS GRID */
+.ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;}
+.ecard{background:var(--bg3);border:1px solid var(--bdg);border-radius:14px;overflow:hidden;transition:transform .28s,box-shadow .28s,border-color .28s;}
+.ecard:hover{transform:translateY(-5px);box-shadow:0 0 36px rgba(212,160,23,.14);border-color:rgba(212,160,23,.35);}
+.ecard-thumb{height:110px;background:linear-gradient(135deg,#1a1400,#2a1e00);display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;}
+.ecard-cat{position:absolute;top:.6rem;left:.6rem;font-size:.67rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--g);background:rgba(0,0,0,.75);border:1px solid var(--bdg);border-radius:999px;padding:.13rem .6rem;}
+.ecard-date-badge{position:absolute;top:.6rem;right:.6rem;background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;font-weight:900;font-size:.75rem;padding:.2rem .55rem;border-radius:8px;text-align:center;}
+.ecard-body{padding:1.05rem 1.15rem;}
+.ecard-title{font-size:.95rem;font-weight:800;color:var(--tx);margin-bottom:.6rem;line-height:1.3;}
+.ecard-meta{font-size:.78rem;color:var(--txm);display:flex;flex-direction:column;gap:.22rem;margin-bottom:.75rem;}
+.em-row{display:flex;align-items:center;gap:.4rem;}
+.ev-cd{display:inline-flex;align-items:center;gap:.38rem;font-size:.76rem;font-weight:700;color:var(--g);background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.2);border-radius:6px;padding:.25rem .65rem;margin-bottom:.75rem;}
+.ev-cd.urgent{color:#f87171;background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);}
+.ev-cd.started{color:#4ade80;background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25);}
+.cap-row{display:flex;justify-content:space-between;font-size:.7rem;color:var(--txd);margin-bottom:.28rem;}
+.cap-bar{height:3px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;}
+.cap-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--g));border-radius:999px;}
+.cap-fill.full{background:linear-gradient(90deg,#ef4444,#dc2626);}
+.ecard-foot{padding:.85rem 1.15rem;border-top:1px solid rgba(255,255,255,.05);}
+.btn-reg{width:100%;height:42px;background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;border:none;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:var(--ff);transition:all .22s;position:relative;overflow:hidden;}
+.btn-reg::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .4s;}
+.btn-reg:hover::before{left:140%;}
+.btn-reg:hover{box-shadow:0 0 24px var(--glow);transform:translateY(-1px);}
+.btn-reg:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.btn-reg.registered{background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.3);color:#4ade80;font-size:.82rem;}
+.btn-reg.full{background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.25);color:#f87171;font-size:.82rem;}
+
+/* MY EVENTS */
+.my-ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.my-ecard{background:var(--bg3);border:1px solid var(--bdg);border-radius:13px;padding:1.1rem;transition:transform .22s,border-color .22s;}
+.my-ecard:hover{transform:translateY(-3px);border-color:rgba(212,160,23,.32);}
+.my-ev-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.16rem .62rem;border-radius:999px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--bdg);background:rgba(212,160,23,.08);color:var(--g);margin-bottom:.65rem;}
+.my-ev-title{font-size:.92rem;font-weight:800;color:var(--tx);margin-bottom:.5rem;}
+.my-ev-meta{font-size:.78rem;color:var(--txm);display:flex;flex-direction:column;gap:.2rem;margin-bottom:.75rem;}
+.stat-up{display:inline-block;padding:.17rem .6rem;border-radius:999px;font-size:.7rem;font-weight:700;background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.3);}
+.stat-done{display:inline-block;padding:.17rem .6rem;border-radius:999px;font-size:.7rem;font-weight:700;background:rgba(212,160,23,.1);color:var(--g);border:1px solid var(--bdg);}
+.btn-ticket{height:34px;padding:0 .9rem;background:rgba(212,160,23,.1);border:1px solid var(--bdg);border-radius:8px;color:var(--g);font-size:.8rem;font-weight:700;cursor:pointer;font-family:var(--ff);transition:all .2s;}
+.btn-ticket:hover{background:rgba(212,160,23,.2);border-color:var(--g);}
+
+/* CHAT */
+.chat-shell{display:grid;grid-template-columns:265px 1fr;gap:1.2rem;height:calc(100vh - 250px);min-height:480px;}
+.chat-evl{background:var(--bg2);border:1px solid var(--bdg);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.cev-hd{padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--g);}
+.cev-list{overflow-y:auto;flex:1;}
+.cev{padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s;font-size:.85rem;font-weight:600;color:var(--txm);}
+.cev:hover{background:rgba(212,160,23,.06);color:var(--tx);}
+.cev.on{background:rgba(212,160,23,.1);color:var(--g);}
+.cev-sub{font-size:.72rem;color:var(--txd);margin-top:.1rem;}
+.chat-box{background:var(--bg2);border:1px solid var(--bdg);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.chat-hd{padding:.82rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.chat-hd-t{font-size:.88rem;font-weight:800;color:var(--tx);}
+.chat-hd-sub{font-size:.74rem;color:var(--txd);}
+.chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.msg{display:flex;gap:.55rem;align-items:flex-end;max-width:80%;}
+.msg.mine{align-self:flex-end;flex-direction:row-reverse;}
+.msg-av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.68rem;font-weight:900;flex-shrink:0;}
+.av-student{background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;}
+.av-staff{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;}
+.av-admin{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;}
+.msg-in{flex:1;}
+.msg-name{font-size:.63rem;color:var(--txm);font-weight:600;margin-bottom:.12rem;}
+.msg.mine .msg-name{text-align:right;}
+.bubble{padding:.55rem .82rem;border-radius:12px;font-size:.83rem;line-height:1.5;word-break:break-word;}
+.mine .bubble{background:rgba(212,160,23,.15);border:1px solid rgba(212,160,23,.25);border-bottom-right-radius:3px;color:var(--tx);}
+.msg:not(.mine) .bubble{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-bottom-left-radius:3px;color:var(--tx);}
+.msg-tm{font-size:.63rem;color:var(--txd);margin-top:.14rem;}
+.mine .msg-tm{text-align:right;}
+.chat-in-row{display:flex;gap:.6rem;padding:.9rem;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+.chat-in{flex:1;height:40px;padding:0 .9rem;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:var(--tx);font-size:.86rem;font-family:var(--ff);}
+.chat-in:focus{outline:none;border-color:var(--g);}
+.chat-in::placeholder{color:rgba(240,236,224,.18);}
+.btn-send{height:40px;width:80px;background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;border:none;border-radius:10px;font-size:.84rem;font-weight:800;cursor:pointer;font-family:var(--ff);}
+.chat-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--txd);font-size:.88rem;text-align:center;}
+
+/* MODAL (Register) */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:grid;place-items:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal.on{opacity:1;pointer-events:all;}
+.mbox{background:var(--bg3);border:1px solid var(--bdg);border-radius:18px;width:min(540px,calc(100vw - 2rem));max-height:90vh;overflow-y:auto;transform:translateY(12px) scale(.97);transition:transform .3s;box-shadow:0 0 50px rgba(212,160,23,.1),0 20px 60px rgba(0,0,0,.7);}
+.modal.on .mbox{transform:none;}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:1.3rem 1.65rem;border-bottom:1px solid var(--bdg);}
+.mhd h3{font-size:1rem;font-weight:800;color:var(--g);}
+.mclose{width:29px;height:29px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--txm);font-size:.88rem;cursor:pointer;display:grid;place-items:center;}
+.mclose:hover{background:rgba(239,68,68,.15);color:#ef4444;}
+.mbody{padding:1.5rem 1.65rem;}
+.fg{margin-bottom:1rem;}
+.fl{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:.4rem;}
+.fi{width:100%;height:46px;padding:0 .95rem;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:var(--tx);font-size:.9rem;font-family:var(--ff);transition:border-color .2s,box-shadow .2s;}
+.fi:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(212,160,23,.1);}
+.fi::placeholder{color:rgba(240,236,224,.18);}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+.mfoot{display:flex;justify-content:flex-end;gap:.55rem;padding:1.1rem 1.65rem;border-top:1px solid var(--bdg);}
+.btn-cancel{padding:.58rem 1.1rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--txm);font-size:.86rem;font-weight:600;cursor:pointer;font-family:var(--ff);}
+.btn-submit{padding:.58rem 1.4rem;background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;border:none;border-radius:9px;font-size:.86rem;font-weight:800;cursor:pointer;font-family:var(--ff);transition:all .22s;}
+.btn-submit:hover{box-shadow:0 0 20px var(--glow);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+/* TICKET MODAL */
+.tk-overlay{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1.5rem;}
+.tk-overlay.on{display:flex;}
+.tk-card{background:#0d0d0d;border:2px solid rgba(212,160,23,.4);border-radius:22px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 0 80px rgba(212,160,23,.18),0 40px 100px rgba(0,0,0,.8);animation:scIn .3s ease;}
+@keyframes scIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:none;}}
+.tk-hd{background:linear-gradient(135deg,#1a1200,#2a1e00);padding:1.6rem 1.9rem 1.4rem;border-bottom:1px dashed rgba(212,160,23,.28);position:relative;overflow:hidden;}
+.tk-hd::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(212,160,23,.05) 1px,transparent 1px);background-size:22px 22px;}
+.tk-logo{display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:700;color:var(--tx);margin-bottom:.9rem;position:relative;z-index:1;}
+.tk-logo-box{width:28px;height:28px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:7px;display:grid;place-items:center;font-size:.85rem;}
+.tk-logo span{color:var(--g);}
+.tk-ev-name{font-size:1.35rem;font-weight:900;color:var(--tx);position:relative;z-index:1;margin-bottom:.3rem;}
+.tk-cat{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--g);background:rgba(212,160,23,.12);border:1px solid rgba(212,160,23,.28);border-radius:999px;padding:.15rem .65rem;display:inline-block;position:relative;z-index:1;}
+.tk-body{display:flex;align-items:center;padding:1.4rem 1.9rem;}
+.tk-qr{width:85px;height:85px;background:#fff;border-radius:10px;padding:5px;flex-shrink:0;}
+.tk-qr canvas{width:100%;height:100%;}
+.tk-details{flex:1;padding-left:1.2rem;}
+.tk-row{display:flex;flex-direction:column;margin-bottom:.62rem;}
+.tk-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txd);font-weight:700;}
+.tk-val{font-size:.86rem;font-weight:700;color:var(--tx);margin-top:.08rem;}
+.tk-foot{background:rgba(212,160,23,.05);border-top:1px solid rgba(255,255,255,.06);padding:.9rem 1.9rem;display:flex;gap:.6rem;justify-content:flex-end;}
+.btn-tk-close{height:38px;padding:0 1rem;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;color:var(--txm);font-size:.85rem;font-weight:600;cursor:pointer;font-family:var(--ff);}
+.btn-tk-dl{height:38px;padding:0 1.3rem;background:linear-gradient(135deg,var(--g),var(--gd));color:#0a0800;border:none;border-radius:9px;font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--ff);}
+
+/* Toasts */
+.toasts{position:fixed;bottom:1.3rem;right:1.3rem;display:flex;flex-direction:column;gap:.45rem;z-index:9999;}
+.toast{display:flex;align-items:flex-start;gap:.72rem;min-width:255px;max-width:330px;padding:.8rem .95rem;background:var(--bg3);border:1px solid var(--bdg);border-radius:11px;box-shadow:0 0 28px rgba(0,0,0,.6);animation:tIn .3s ease;}
+.toast.ok{border-color:rgba(34,197,94,.35);}
+.toast.err{border-color:rgba(239,68,68,.4);}
+.toast.fade{animation:tOut .3s ease forwards;}
+@keyframes tIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:none;}}
+@keyframes tOut{to{opacity:0;transform:translateX(16px);}}
+.spin{width:24px;height:24px;border:2px solid rgba(255,255,255,.07);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.empty-msg{text-align:center;padding:3rem 1rem;color:var(--txd);}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.3;}
+.btn-ghost{display:inline-flex;align-items:center;gap:.4rem;padding:.52rem 1.1rem;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;color:var(--txm);font-size:.84rem;font-weight:600;cursor:pointer;font-family:var(--ff);transition:all .2s;}
+.btn-ghost:hover{border-color:var(--bdg);color:var(--g);}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.sh-t{font-size:.95rem;font-weight:800;color:var(--tx);}
+.sh-t span{color:var(--g);}
+@media(max-width:1100px){.ev-grid,.my-ev-grid{grid-template-columns:repeat(2,1fr);}.stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:900px){.shell{grid-template-columns:1fr;}.sb{display:none;}.chat-shell{grid-template-columns:1fr;height:auto;}}
+@media(max-width:640px){.ev-grid,.my-ev-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<!-- AUTH GUARD -->
+<script>
+(function(){
+  var u=null;try{u=JSON.parse(sessionStorage.getItem('cc_user'));}catch(e){}
+  if(!u||u.role!=='student'){window.location.href='/role-login';throw new Error('redirect');}
+  window._ME=u;
+})();
+</script>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand"><div class="n-ico">🎓</div>Campus<span>Connect</span></div>
+  <div class="role-chip">🎓 Student Portal</div>
+  <div class="nav-r">
+    <div class="nd-wrap">
+      <div class="n-bell" id="bell" onclick="toggleND()">🔔<span class="bell-dot" id="bdot"></span></div>
+      <div class="nd-drop" id="nd-drop">
+        <div class="nd-hd"><h4>Notifications</h4><button class="nd-mark" onclick="markAllND()">Mark all read</button></div>
+        <div class="nd-list" id="nd-list"><div class="nd-empty">Loading…</div></div>
+      </div>
+    </div>
+    <span class="nav-uname" id="uname"></span>
+    <div class="nav-av" id="nav-av" onclick="location.href='/profile'" title="My Profile" style="cursor:pointer"></div>
+    <button class="btn-lo" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- SHELL -->
+<div class="shell">
+  <aside class="sb">
+    <div class="sb-sec">Main</div>
+    <button class="sbi on" id="sb-home" onclick="showS('home')"><span class="sbi-ico">🏠</span>Home</button>
+    <button class="sbi" id="sb-browse" onclick="showS('browse')"><span class="sbi-ico">📅</span>Browse Events</button>
+    <button class="sbi" id="sb-myevents" onclick="showS('myevents')"><span class="sbi-ico">🎫</span>My Events</button>
+    <button class="sbi" id="sb-chat" onclick="showS('chat')"><span class="sbi-ico">💬</span>Event Chats</button>
+    <div class="sb-sec">Account</div>
+    <button class="sbi" onclick="location.href='/profile'"><span class="sbi-ico">👤</span>My Profile</button>
+  </aside>
+
+  <main class="main">
+    <!-- HOME -->
+    <section class="sec on" id="sec-home">
+      <div class="ph">
+        <div><div class="ph-h1">Welcome, <span id="hw-name">Student</span> 👋</div><div class="ph-sub">Here's your event activity at a glance</div></div>
+        <button class="btn-ghost" onclick="showS('browse')">Browse Events →</button>
+      </div>
+      <div class="stats">
+        <div class="scard"><div class="sc-ico ico-g">🎫</div><div><div class="sc-val" id="st-reg">0</div><div class="sc-lbl">Registered</div></div></div>
+        <div class="scard"><div class="sc-ico ico-b">⬆️</div><div><div class="sc-val" id="st-up">0</div><div class="sc-lbl">Upcoming</div></div></div>
+        <div class="scard"><div class="sc-ico ico-gr">✅</div><div><div class="sc-val" id="st-done">0</div><div class="sc-lbl">Completed</div></div></div>
+        <div class="scard"><div class="sc-ico ico-r">📅</div><div><div class="sc-val" id="st-total">—</div><div class="sc-lbl">Total Events</div></div></div>
+      </div>
+      <div class="sh"><div class="sh-t">Upcoming Events <span id="home-ev-cnt"></span></div><button class="btn-ghost" onclick="showS('browse')">View all →</button></div>
+      <div class="ev-grid" id="home-ev-grid"><div style="grid-column:1/-1;text-align:center;padding:3rem"><div class="spin"></div></div></div>
+    </section>
+
+    <!-- BROWSE EVENTS -->
+    <section class="sec" id="sec-browse">
+      <div class="ph"><div><div class="ph-h1">Browse <span>Events</span></div><div class="ph-sub">Find and register for upcoming events</div></div></div>
+      <div class="filter-bar">
+        <input class="search-inp" type="search" id="search-inp" placeholder="Search events, venues…" oninput="filterEvs()"/>
+        <button class="chip on" data-cat="all" onclick="pickCat(this)">All</button>
+        <button class="chip" data-cat="technical" onclick="pickCat(this)">💻 Technical</button>
+        <button class="chip" data-cat="cultural" onclick="pickCat(this)">🎭 Cultural</button>
+        <button class="chip" data-cat="sports" onclick="pickCat(this)">⚽ Sports</button>
+        <button class="chip" data-cat="workshop" onclick="pickCat(this)">🛠 Workshop</button>
+        <button class="chip" data-cat="seminar" onclick="pickCat(this)">🎓 Seminar</button>
+      </div>
+      <div class="ev-grid" id="browse-grid"><div style="grid-column:1/-1;text-align:center;padding:3rem"><div class="spin"></div></div></div>
+    </section>
+
+    <!-- MY EVENTS -->
+    <section class="sec" id="sec-myevents">
+      <div class="ph"><div><div class="ph-h1">My <span>Events</span></div><div class="ph-sub">Your registered events &amp; tickets</div></div></div>
+      <div id="my-ev-wrap"><div style="text-align:center;padding:3rem"><div class="spin"></div></div></div>
+    </section>
+
+    <!-- CHAT -->
+    <section class="sec" id="sec-chat">
+      <div class="ph"><div><div class="ph-h1">Event <span>Discussion</span></div><div class="ph-sub">Chat with staff and fellow students</div></div></div>
+      <div class="chat-shell">
+        <div class="chat-evl">
+          <div class="cev-hd">📅 My Registered Events</div>
+          <div class="cev-list" id="chat-ev-list"><div style="padding:1rem;text-align:center"><div class="spin"></div></div></div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-hd">
+            <div><div class="chat-hd-t" id="chat-title">Select an event</div><div class="chat-hd-sub">Chat with staff &amp; students</div></div>
+          </div>
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="chat-empty"><div><div style="font-size:2rem;margin-bottom:.65rem">💬</div>Select a registered event to join the discussion</div></div>
+          </div>
+          <div class="chat-in-row">
+            <input class="chat-in" type="text" id="chat-in" placeholder="Type a message… (Enter to send)" disabled/>
+            <button class="btn-send" id="send-btn" onclick="sendChat()" disabled>Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal" id="reg-modal">
+  <div class="mbox">
+    <div class="mhd"><h3>📝 Register for Event</h3><button class="mclose" onclick="closeReg()">✕</button></div>
+    <div class="mbody">
+      <div id="reg-ev-info" style="background:rgba(212,160,23,.06);border:1px solid var(--bdg);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.2rem;font-size:.88rem;color:var(--txm)"></div>
+      <div class="mrow">
+        <div class="fg"><label class="fl">Full Name *</label><input class="fi" type="text" id="r-name" placeholder="Your full name"/></div>
+        <div class="fg"><label class="fl">Roll Number *</label><input class="fi" type="text" id="r-roll" placeholder="22IT001"/></div>
+      </div>
+      <div class="fg"><label class="fl">Email *</label><input class="fi" type="email" id="r-email" placeholder="your@email.com"/></div>
+      <div class="mrow">
+        <div class="fg"><label class="fl">Department</label><input class="fi" type="text" id="r-dept" placeholder="IT"/></div>
+        <div class="fg"><label class="fl">Year</label>
+          <select class="fi" id="r-year"><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="closeReg()">Cancel</button>
+      <button class="btn-submit" id="reg-sbtn" onclick="submitReg()">✓ Register Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET MODAL -->
+<div class="tk-overlay" id="tk-overlay">
+  <div class="tk-card">
+    <div class="tk-hd">
+      <div class="tk-logo"><div class="tk-logo-box">🎓</div>Campus<span>Connect</span></div>
+      <div class="tk-ev-name" id="tk-ev-name">Event Name</div>
+      <span class="tk-cat" id="tk-cat">General</span>
+    </div>
+    <div class="tk-body">
+      <div class="tk-qr"><canvas id="tk-canvas" width="75" height="75"></canvas></div>
+      <div class="tk-details">
+        <div class="tk-row"><span class="tk-lbl">Attendee</span><span class="tk-val" id="tk-name">—</span></div>
+        <div class="tk-row"><span class="tk-lbl">Roll No.</span><span class="tk-val" id="tk-roll">—</span></div>
+        <div class="tk-row"><span class="tk-lbl">Date &amp; Time</span><span class="tk-val" id="tk-dt">—</span></div>
+        <div class="tk-row"><span class="tk-lbl">Venue</span><span class="tk-val" id="tk-venue">—</span></div>
+        <div class="tk-row"><span class="tk-lbl">Ticket ID</span><span class="tk-val" id="tk-id" style="font-size:.7rem">—</span></div>
+      </div>
+    </div>
+    <div class="tk-foot">
+      <button class="btn-tk-close" onclick="closeTk()">Close</button>
+      <button class="btn-tk-dl" onclick="dlTicket()">⬇ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+var ME=window._ME;
+
+/* ── Init navbar ── */
+document.getElementById('uname').textContent=ME.name;
+document.getElementById('nav-av').textContent=(ME.name||'S').split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+document.getElementById('hw-name').textContent=ME.name.split(' ')[0]||ME.name;
+
+function logout(){sessionStorage.removeItem('cc_user');fetch('/api/auth/logout',{method:'POST'}).finally(function(){window.location.href='/role-login';});}
+
+/* ── Utilities ── */
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(d){if(!d)return '—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+function timeAgo(d){var diff=Date.now()-new Date(d),m=Math.floor(diff/60000);if(m<1)return 'now';if(m<60)return m+'m ago';var h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+
+/* ── Toast ── */
+function toast(type,title,msg){
+  var el=document.createElement('div');
+  el.className='toast '+(type==='ok'?'ok':'err');
+  el.innerHTML='<span>'+(type==='ok'?'✅':'❌')+'</span><div><div style="font-weight:700;font-size:.84rem">'+esc(title)+'</div>'+(msg?'<div style="font-size:.75rem;color:var(--txm)">'+esc(msg)+'</div>':'')+'</div>';
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(function(){el.classList.add('fade');el.addEventListener('animationend',function(){el.remove();});},4500);
+}
+
+/* ── API ── */
+async function api(method,url,body){
+  var r=await fetch(url,{method:method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  var d=await r.json();if(!r.ok)throw new Error(d.message||'Request failed');return d;
+}
+
+/* ── Sections ── */
+var SECS=['home','browse','myevents','chat'];
+function showS(name){
+  SECS.forEach(function(s){
+    document.getElementById('sec-'+s).classList.toggle('on',s===name);
+    var b=document.getElementById('sb-'+s);if(b)b.classList.toggle('on',s===name);
+  });
+  if(name==='browse'){allEvs.length?renderBrowse():loadAllEvs();loadMyRegIds();}
+  if(name==='myevents')loadMyEvents();
+  if(name==='chat')loadChatEvList();
+}
+
+/* ── Category filter ── */
+var activeCat='all';var allEvs=[];var myRegIds=new Set();
+function pickCat(el){document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');activeCat=el.dataset.cat;renderBrowse();}
+function filterEvs(){renderBrowse();}
+
+var CAT={technical:'💻',cultural:'🎭',sports:'⚽',workshop:'🛠',seminar:'🎓',general:'📋'};
+
+function renderBrowse(){
+  var q=(document.getElementById('search-inp').value||'').toLowerCase().trim();
+  var filtered=allEvs.filter(function(e){
+    if(activeCat!=='all'&&(e.category||'general').toLowerCase()!==activeCat)return false;
+    if(q){var t=(e.title+' '+(e.venue||'')+' '+(e.description||'')).toLowerCase();if(!t.includes(q))return false;}
+    return true;
+  });
+  var grid=document.getElementById('browse-grid');
+  if(!filtered.length){grid.innerHTML='<div class="empty-msg" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No events found. Try a different filter.</p></div>';return;}
+  grid.innerHTML=filtered.map(function(e){return makeCard(e,true);}).join('');
+  startCountdowns();
+}
+
+function makeCard(e,withReg){
+  var reg=e.registered??0,cap=e.capacity??100,pct=Math.min(100,Math.round(reg/cap*100));
+  var isFull=reg>=cap,isReg=myRegIds.has(e.id);
+  var d=e.date?new Date(e.date):null;
+  var day=d?d.getDate():'—',mon=d?d.toLocaleString('en',{month:'short'}).toUpperCase():'';
+  var ico=CAT[(e.category||'').toLowerCase()]||'📋';
+  var btnTxt=isReg?'✓ Registered':isFull?'🔒 Event Full':'Register Now →';
+  var btnCls='btn-reg'+(isReg?' registered':isFull?' full':'');
+  var btnDis=(isReg||isFull)?'disabled':'';
+  return '<div class="ecard">'
+    +'<div class="ecard-thumb"><span class="ecard-cat">'+ico+' '+esc((e.category||'General').toUpperCase())+'</span>'
+    +'<div class="ecard-date-badge">'+day+'<br>'+mon+'</div>'+ico+'</div>'
+    +'<div class="ecard-body">'
+    +'<div class="ecard-title">'+esc(e.title||'Untitled')+'</div>'
+    +'<div class="ecard-meta"><div class="em-row">📍 '+esc(e.venue||'—')+'</div><div class="em-row">🕐 '+esc(e.time||'TBD')+'</div></div>'
+    +'<div class="ev-cd" id="cd-'+esc(e.id)+'" data-cd="'+esc(e.date)+'"><span>⏱</span><span class="cd-txt">…</span></div>'
+    +'<div class="cap-row"><span>'+reg+' registered</span><span>'+(cap-reg)+' left</span></div>'
+    +'<div class="cap-bar"><div class="cap-fill'+(isFull?' full':'')+'" style="width:'+pct+'%"></div></div>'
+    +'</div>'
+    +(withReg?'<div class="ecard-foot"><button class="'+btnCls+'" onclick="openReg(\''+esc(e.id)+'\',\''+esc(e.title||'')+'\',\''+esc(e.category||'')+'\',\''+esc(e.date)+'\',\''+esc(e.venue||'')+'\',\''+esc(e.time||'')+'\');void(0)" '+btnDis+'>'+btnTxt+'</button></div>':'')
+    +'</div>';
+}
+
+/* ── Countdown timers ── */
+var _timers={};
+function startCountdowns(){
+  document.querySelectorAll('[data-cd]').forEach(function(el){
+    var k=el.id;if(_timers[k])clearInterval(_timers[k]);
+    var target=new Date(el.dataset.cd),txtEl=el.querySelector('.cd-txt')||el;
+    function tick(){
+      var diff=target-Date.now();
+      if(diff<=0){txtEl.textContent='Event Started';el.classList.add('started');clearInterval(_timers[k]);return;}
+      var dd=Math.floor(diff/86400000),hh=Math.floor((diff%86400000)/3600000),mm=Math.floor((diff%3600000)/60000),ss=Math.floor((diff%60000)/1000);
+      if(dd>0)txtEl.textContent=dd+'d '+hh+'h '+mm+'m';
+      else if(hh>0)txtEl.textContent=hh+'h '+mm+'m '+ss+'s';
+      else{txtEl.textContent=mm+'m '+ss+'s';el.classList.add('urgent');}
+    }
+    tick();_timers[k]=setInterval(tick,1000);
+  });
+}
+
+/* ── Load events ── */
+async function loadAllEvs(){
+  var grid=document.getElementById('browse-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem"><div class="spin"></div></div>';
+  try{
+    var res=await api('GET','/api/events');allEvs=res.data;renderBrowse();
+  }catch(e){grid.innerHTML='<div class="empty-msg" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><p>'+esc(e.message)+'</p></div>';}
+}
+
+async function loadMyRegIds(){
+  try{
+    var res=await api('GET','/api/profile/'+encodeURIComponent(ME.email));
+    myRegIds=new Set(res.data.registrations.map(function(r){return r.eventId;}));
+    if(allEvs.length)renderBrowse();
+  }catch(e){}
+}
+
+/* ── Home section ── */
+async function initHome(){
+  document.getElementById('hw-name').textContent=ME.name.split(' ')[0]||ME.name;
+  try{
+    var res=await api('GET','/api/events');allEvs=res.data;
+    var now=new Date();
+    var upcoming=res.data.filter(function(e){return e.date&&new Date(e.date)>=now;}).slice(0,3);
+    var cnt=document.getElementById('home-ev-cnt');if(cnt)cnt.textContent=upcoming.length?'('+upcoming.length+')':'';
+    var grid=document.getElementById('home-ev-grid');
+    if(!upcoming.length){grid.innerHTML='<div class="empty-msg" style="grid-column:1/-1"><div class="empty-icon">📅</div><p>No upcoming events yet. Check back soon!</p></div>';return;}
+    grid.innerHTML=upcoming.map(function(e){return makeCard(e,false);}).join('');
+    startCountdowns();
+  }catch(e){document.getElementById('home-ev-grid').innerHTML='<div class="empty-msg" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><p>Failed to load events</p></div>';}
+  try{
+    var p=await api('GET','/api/profile/'+encodeURIComponent(ME.email));
+    var stats=p.data.stats;
+    document.getElementById('st-reg').textContent=stats.totalRegistered??0;
+    document.getElementById('st-up').textContent=stats.upcoming??0;
+    document.getElementById('st-done').textContent=stats.completed??0;
+    myRegIds=new Set(p.data.registrations.map(function(r){return r.eventId;}));
+  }catch(e){}
+  try{
+    var s=await api('GET','/api/admin/stats');
+    document.getElementById('st-total').textContent=s.data.totalEvents??'—';
+  }catch(e){}
+}
+
+/* ── My Events ── */
+async function loadMyEvents(){
+  var wrap=document.getElementById('my-ev-wrap');
+  wrap.innerHTML='<div style="text-align:center;padding:3rem"><div class="spin"></div></div>';
+  try{
+    var res=await api('GET','/api/profile/'+encodeURIComponent(ME.email));
+    var regs=res.data.registrations;
+    if(!regs.length){
+      wrap.innerHTML='<div class="empty-msg"><div class="empty-icon">🎫</div><p>No registrations yet.</p><button class="btn-ghost" style="margin-top:1.2rem" onclick="showS(\'browse\')">Browse Events →</button></div>';return;
+    }
+    var up=regs.filter(function(r){return r.status==='upcoming';});
+    var done=regs.filter(function(r){return r.status==='completed';});
+    var html='';
+    if(up.length){
+      html+='<div style="font-size:.9rem;font-weight:800;color:var(--tx);margin-bottom:.9rem">⬆️ Upcoming <span style="color:var(--g)">('+up.length+')</span></div>';
+      html+='<div class="my-ev-grid">'+up.map(myEvCard).join('')+'</div>';
+    }
+    if(done.length){
+      html+='<div style="font-size:.9rem;font-weight:800;color:var(--tx);margin-top:1.75rem;margin-bottom:.9rem">✅ Completed <span style="color:var(--g)">('+done.length+')</span></div>';
+      html+='<div class="my-ev-grid">'+done.map(myEvCard).join('')+'</div>';
+    }
+    wrap.innerHTML=html;startCountdowns();
+  }catch(e){wrap.innerHTML='<div class="empty-msg"><div class="empty-icon">⚠️</div><p>'+esc(e.message)+'</p></div>';}
+}
+
+function myEvCard(r){
+  return '<div class="my-ecard">'
+    +'<div class="my-ev-tag">'+(CAT[(r.category||'').toLowerCase()]||'📋')+' '+esc((r.category||'General').toUpperCase())+'</div>'
+    +'<div class="my-ev-title">'+esc(r.eventName)+'</div>'
+    +'<div class="my-ev-meta"><div>📅 '+fmtDate(r.date)+'</div><div>📍 '+esc(r.venue||'—')+'</div></div>'
+    +(r.status==='upcoming'?'<span class="stat-up">Upcoming</span>':'<span class="stat-done">Completed</span>')
+    +'<div style="margin-top:.8rem"><button class="btn-ticket" onclick="openTicket(\''+esc(r.registrationId)+'\')">🎫 View Ticket</button></div>'
+    +'</div>';
+}
+
+/* ── Register modal ── */
+var _regEventId=null;
+function openReg(id,title,cat,date,venue,time){
+  _regEventId=id;
+  document.getElementById('reg-ev-info').innerHTML='<strong style="color:var(--tx)">'+esc(title)+'</strong><br><span>📅 '+fmtDate(date)+'</span> &nbsp; <span>📍 '+esc(venue)+'</span> &nbsp; <span>🕐 '+esc(time||'TBD')+'</span>';
+  document.getElementById('r-name').value=ME.name||'';
+  document.getElementById('r-email').value=ME.email||'';
+  document.getElementById('r-roll').value=ME.rollNumber||'';
+  document.getElementById('r-dept').value=ME.department||'';
+  document.getElementById('reg-modal').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeReg(){document.getElementById('reg-modal').classList.remove('on');document.body.style.overflow='';}
+
+async function submitReg(){
+  var name=document.getElementById('r-name').value.trim();
+  var roll=document.getElementById('r-roll').value.trim();
+  var email=document.getElementById('r-email').value.trim();
+  var dept=document.getElementById('r-dept').value.trim();
+  var year=document.getElementById('r-year').value;
+  if(!name||!roll||!email){toast('err','Missing fields','Name, roll number, and email are required.');return;}
+  var btn=document.getElementById('reg-sbtn');btn.disabled=true;btn.textContent='Registering…';
+  try{
+    var res=await api('POST','/api/register',{eventId:_regEventId,name:name,rollNumber:roll,email:email,department:dept,year:year});
+    toast('ok','Registered! 🎉','You are confirmed for this event.');
+    closeReg();
+    myRegIds.add(_regEventId);
+    if(allEvs.length)renderBrowse();
+    initHome();
+    setTimeout(function(){openTicket(res.data.ticketId);},600);
+  }catch(e){toast('err','Registration Failed',e.message);}
+  finally{btn.disabled=false;btn.textContent='✓ Register Now';}
+}
+
+/* ── Ticket ── */
+var _tkData=null;
+async function openTicket(regId){
+  try{
+    var res=await api('GET','/api/ticket/'+regId);var tk=res.data;_tkData=tk;
+    setT('tk-ev-name',tk.eventName);setT('tk-cat',(tk.category||'General').toUpperCase());
+    setT('tk-name',tk.userName);setT('tk-roll',tk.rollNumber||'—');
+    setT('tk-dt',(tk.eventDate?fmtDate(tk.eventDate):'TBD')+(tk.eventTime?' · '+tk.eventTime:''));
+    setT('tk-venue',tk.venue||'—');setT('tk-id',tk.ticketId.split('-')[0].toUpperCase());
+    drawQR(document.getElementById('tk-canvas'),tk.qrData);
+    document.getElementById('tk-overlay').classList.add('on');
+  }catch(e){toast('err','Ticket Error',e.message);}
+}
+function setT(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+function closeTk(){document.getElementById('tk-overlay').classList.remove('on');}
+
+function drawQR(canvas,data){
+  var ctx=canvas.getContext('2d'),sz=canvas.width;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  var hash=Array.from(data||'CC').reduce(function(a,c){return((a<<5)-a)+c.charCodeAt(0)|0;},0);
+  var cells=10,cell=sz/cells;
+  ctx.fillStyle='#000';
+  for(var rr=0;rr<cells;rr++)for(var cc=0;cc<cells;cc++){
+    var bit=((hash>>((rr*cells+cc)%30))&1)^((rr+cc)%2===0?1:0);
+    if(bit)ctx.fillRect(cc*cell+1,rr*cell+1,cell-2,cell-2);
+  }
+  [[0,0],[0,cells-3],[cells-3,0]].forEach(function(p){
+    var r=p[0],c=p[1];
+    ctx.fillStyle='#000';ctx.fillRect(c*cell,r*cell,3*cell,3*cell);
+    ctx.fillStyle='#fff';ctx.fillRect(c*cell+cell*.2,r*cell+cell*.2,3*cell-cell*.4,3*cell-cell*.4);
+    ctx.fillStyle='#000';ctx.fillRect(c*cell+cell*.6,r*cell+cell*.6,3*cell-cell*1.2,3*cell-cell*1.2);
+  });
+}
+
+async function dlTicket(){
+  if(!_tkData)return;
+  function loadLib(src){return new Promise(function(res){if(document.querySelector('script[src="'+src+'"]')){res();return;}var s=document.createElement('script');s.src=src;s.onload=res;document.head.appendChild(s);});}
+  toast('ok','Preparing…','Generating your PDF ticket');
+  try{
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    var canvas=await html2canvas(document.querySelector('.tk-card'),{scale:2,backgroundColor:'#0d0d0d',logging:false});
+    var jsPDF=window.jspdf.jsPDF;var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a5'});
+    var imgW=pdf.internal.pageSize.getWidth();
+    var imgH=canvas.height*(imgW/canvas.width);
+    pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,imgW,imgH);
+    pdf.save('ticket-'+(_tkData.ticketId||'CC').split('-')[0]+'.pdf');
+  }catch(e){toast('err','PDF Error','Could not generate PDF. Try screenshotting instead.');}
+}
+
+/* ── Chat ── */
+var _curEvId=null;var _chatPoll=null;var _lastCount=0;
+
+async function loadChatEvList(){
+  var list=document.getElementById('chat-ev-list');
+  list.innerHTML='<div style="padding:1rem;text-align:center"><div class="spin"></div></div>';
+  try{
+    var res=await api('GET','/api/profile/'+encodeURIComponent(ME.email));
+    var regs=res.data.registrations;
+    if(!regs.length){list.innerHTML='<div style="padding:1rem;text-align:center;color:var(--txd);font-size:.84rem">Register for events to join their chats</div>';return;}
+    list.innerHTML=regs.map(function(r){return '<div class="cev'+((_curEvId===r.eventId)?' on':'')+'" data-id="'+esc(r.eventId)+'" onclick="selectChatEv(\''+esc(r.eventId)+'\',\''+esc(r.eventName||'Event')+'\')"><div>'+esc(r.eventName||'Untitled')+'</div><div class="cev-sub">'+fmtDate(r.date)+'</div></div>';}).join('');
+    if(_curEvId){var ev=regs.find(function(r){return r.eventId===_curEvId;});if(ev)selectChatEv(ev.eventId,ev.eventName);}
+  }catch(e){list.innerHTML='<div style="padding:1rem;text-align:center;color:#ef4444;font-size:.82rem">Error loading events</div>';}
+}
+
+function selectChatEv(id,title){
+  _curEvId=id;
+  document.querySelectorAll('.cev').forEach(function(el){el.classList.toggle('on',el.dataset.id===id);});
+  document.getElementById('chat-title').textContent='💬 '+title;
+  document.getElementById('chat-in').disabled=false;
+  document.getElementById('send-btn').disabled=false;
+  if(_chatPoll)clearInterval(_chatPoll);
+  _lastCount=0;loadChatMsgs();_chatPoll=setInterval(loadChatMsgs,3000);
+}
+
+async function loadChatMsgs(){
+  if(!_curEvId)return;
+  try{
+    var res=await api('GET','/api/chats/'+_curEvId);var msgs=res.data;
+    if(msgs.length===_lastCount)return;_lastCount=msgs.length;
+    var box=document.getElementById('chat-msgs');
+    var atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<60;
+    if(!msgs.length){box.innerHTML='<div class="chat-empty"><div><div style="font-size:2rem;margin-bottom:.65rem">💬</div>No messages yet. Say hello!</div></div>';return;}
+    box.innerHTML=msgs.map(function(m){
+      var isMe=m.senderId===ME.id;
+      var init=(m.senderName||'?').split(' ').map(function(w){return w[0]||'';}).join('').substring(0,2).toUpperCase();
+      var avCls='msg-av av-'+(m.senderRole||'student');
+      return '<div class="msg'+(isMe?' mine':'')+'">'
+        +'<div class="'+avCls+'">'+esc(init)+'</div>'
+        +'<div class="msg-in"><div class="msg-name">'+esc(m.senderName||'Unknown')+(m.senderRole==='staff'?' 👨‍🏫':m.senderRole==='admin'?' 🛡️':'')+'</div>'
+        +'<div class="bubble">'+esc(m.message)+'</div>'
+        +'<div class="msg-tm">'+timeAgo(m.createdAt)+'</div></div></div>';
+    }).join('');
+    if(atBottom)box.scrollTop=box.scrollHeight;
+  }catch(e){}
+}
+
+async function sendChat(){
+  var inp=document.getElementById('chat-in');var msg=inp.value.trim();if(!msg||!_curEvId)return;
+  try{
+    await api('POST','/api/chats',{eventId:_curEvId,senderId:ME.id,senderName:ME.name,senderRole:'student',message:msg});
+    inp.value='';_lastCount=0;loadChatMsgs();
+  }catch(e){toast('err','Send Failed',e.message);}
+}
+
+/* ── Notifications ── */
+function toggleND(){
+  var dd=document.getElementById('nd-drop');dd.classList.toggle('on');
+  if(dd.classList.contains('on'))loadND();
+}
+async function loadND(){
+  var list=document.getElementById('nd-list');
+  list.innerHTML='<div class="nd-empty">Loading…</div>';
+  try{
+    var res=await api('GET','/api/notifications/'+ME.id);var ns=res.data,u=res.unread;
+    var dot=document.getElementById('bdot');dot.classList.toggle('on',u>0);if(u>0)dot.textContent=u>9?'9+':u;
+    if(!ns.length){list.innerHTML='<div class="nd-empty">All caught up! 🎉</div>';return;}
+    list.innerHTML=ns.map(function(n){return '<div class="nd-item'+(n.read?'':' unr')+'" onclick="rdND(\''+n.id+'\',this)"><div class="nd-dot"></div><div style="flex:1;min-width:0"><div class="nd-t">'+esc(n.title)+'</div><div class="nd-m">'+esc(n.message||'')+'</div><div class="nd-tm">'+timeAgo(n.createdAt)+'</div></div></div>';}).join('');
+  }catch(e){list.innerHTML='<div class="nd-empty">Failed to load</div>';}
+}
+async function rdND(id,el){try{await api('PUT','/api/notifications/'+id+'/read',{});el.classList.remove('unr');}catch(e){}}
+async function markAllND(){
+  try{
+    await api('PUT','/api/notifications/read-all/'+ME.id,{});
+    document.querySelectorAll('.nd-item').forEach(function(el){el.classList.remove('unr');});
+    document.getElementById('bdot').classList.remove('on');
+  }catch(e){}
+}
+document.addEventListener('click',function(e){
+  var w=document.getElementById('bell')?.closest('.nd-wrap');
+  if(w&&!w.contains(e.target))document.getElementById('nd-drop').classList.remove('on');
+  if(e.target.classList.contains('modal'))e.target.classList.remove('on'),document.body.style.overflow='';
+});
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('chat-in').addEventListener('keydown',function(e){if(e.key==='Enter')sendChat();});
+});
+
+/* ── Init ── */
+(async function(){
+  initHome();
+  try{var res=await api('GET','/api/notifications/'+ME.id);var u=res.unread;var dot=document.getElementById('bdot');if(u>0){dot.classList.add('on');dot.textContent=u>9?'9+':u;}}catch(e){}
+})();
+
+/* ── Expose globals ── */
+window.showS=showS;window.openReg=openReg;window.closeReg=closeReg;window.submitReg=submitReg;
+window.openTicket=openTicket;window.closeTk=closeTk;window.dlTicket=dlTicket;
+window.sendChat=sendChat;window.selectChatEv=selectChatEv;
+window.toggleND=toggleND;window.markAllND=markAllND;window.logout=logout;window.pickCat=pickCat;
+</script>
+</body>
+</html>
